@@ -17,6 +17,10 @@ You can then access different apects of device functionality, through aspect-spe
     >>> dev.power.state
     StateMap(state='on', sub_state=None)
 
+## Documentation
+
+Full documentation can be found on readthedocs: http://wry.readthedocs.org/en/latest/
+
 ## Status
 Wry is in the early stages of development, and the interfaces it exposes may change as a result. Issues and pull requests are more than welcome.
 

@@ -27,6 +27,7 @@ Wry currently supports only Python 2.7. There are no philosophical reasons for t
 Wry relies on the wsman AMT protocol, and therefore supports AMT versions 7(?) onwards.
 
 Tested on the following hardware/firmware:
+
     - Intel NUC DC53427HYE (BIOS 0037, ME 8.1.40.1416)
     - Intel NUC5i5MYBE
 

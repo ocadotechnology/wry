@@ -1,0 +1,7 @@
+- Proper logging
+- Make RESOURCE_URIs a json file?
+- Implement native RequestStateChange support...
+    - Perhaps source allowed methods for each resource from the schema
+- Make invoking instance method more DRY [in progress]
+- Add boot device selection, etc., support. [in progress]
+- Add SOL functionality

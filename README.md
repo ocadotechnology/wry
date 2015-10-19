@@ -1,12 +1,10 @@
-Wry
-===
+# Wry
 
 Wry is a Pythonic AMT provisioning, configuration and management library.
 
 It is [very] loosely based on the OpenStack Ironic project.
 
-Quickstart
-++++++++++
+## Quickstart
 
 Wry's functionality is exposed through the AMTDevice class. Initialize it as such:
 

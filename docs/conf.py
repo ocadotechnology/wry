@@ -15,8 +15,8 @@
 import sys
 import os
 import mock
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
-from wry.version import __VERSION__
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -69,6 +69,7 @@ copyright = u'2015, Ocado Technology'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
+from wry.version import __VERSION__
 # The short X.Y version.
 version = __VERSION__.split('-')[0]
 # The full version, including alpha/beta/rc tags.

@@ -16,9 +16,9 @@
 """Setup file for wry."""
 from setuptools import setup, find_packages
 from os import path
-from gitversion import rewritable_git_version
+from wry.version import __VERSION__
 
-__VERSION__ = rewritable_git_version(path.dirname(path.abspath(__file__)) + '/wry/version.py')
+
 
 setup(
     name='wry',

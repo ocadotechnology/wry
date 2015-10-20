@@ -14,6 +14,7 @@
 
 import sys
 import os
+import mock
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
@@ -21,6 +22,17 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
+
+# Here we mock out dependencies that we can't install - C extension requirement
+# See http://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
+
+class Mock(mock.Mock):
+    @classmethod
+    def __getattr__(cls, name):
+            return Mock()
+
+MOCK_MODULES = ['pywsman', 'xmltodict']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # -- General configuration ------------------------------------------------
 

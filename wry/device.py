@@ -12,7 +12,7 @@
 
 
 import pywsman
-import json
+import re
 from collections import namedtuple
 from collections import OrderedDict
 from wry import common
@@ -87,6 +87,7 @@ class AMTDevice(object):
         '''
         raise NotImplemented('There is no way to get the value of this property. Please set it explicitly.')
         return self.options.get_dump_request()
+
     @debug.setter
     def debug(self, value):
         if value:
@@ -136,7 +137,7 @@ class AMTDevice(object):
                 output.update(resource)
         messages = ['# Could not dump %s' % name for name in impossible]
         if as_json:
-            return '\n'.join(messages) + '\n' + json.dumps(output, indent=4)
+            return '\n'.join(messages) + '\n' + output.as_json()
         else:
             print '\n'.join(messages)
             return output
@@ -160,7 +161,9 @@ class DeviceCapability(object):
             return resource[resource_name][setting]
         return resource[resource_name]
 
-    def put(self, resource_name=None, input_dict=None, silent=False, as_update=True):
+    def put(self, resource_name=None, input_dict=None, silent=False,
+        as_update=True): # Ideally want keyword-only args or a refactor here.
+                         #Want to be able to supply only input_dict...
         if not resource_name:
             resource_name = self.resource_name
         if as_update:
@@ -276,6 +279,7 @@ class AMTKVM(DeviceCapability):
         '''
         e_state = self.get('CIM_KVMRedirectionSAP', 'EnabledState')
         return AMT_KVM_ENABLEMENT_MAP[e_state].state
+
     @enabled.setter
     def enabled(self, value):
         if value is True:

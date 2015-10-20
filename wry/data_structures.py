@@ -15,6 +15,7 @@ Wry data structures and helpers.
 """
 
 import xmltodict
+import json
 from ast import literal_eval
 from collections import OrderedDict# as NormalOrderedDict
 from wry.config import RESOURCE_URIs
@@ -22,6 +23,7 @@ from wry.config import RESOURCE_URIs
 
 
 class WryDict(OrderedDict):
+    '''An OrderedDict with the ability to be generated from wman-returned XML'''
 
     def __init__(self, *args, **kwargs):
         self.from_xml = False
@@ -45,8 +47,7 @@ class WryDict(OrderedDict):
         return _xml
 
     def with_namespaces(self):
-        '''Add an XML namespace attribute(s) to the dictionary value(s).
-        '''
+        '''Add an XML namespace attribute(s) to the dictionary value(s).'''
         output = OrderedDict()
         for resource_name, resource in self.iteritems():
             uri = RESOURCE_URIs.get(resource_name, None)
@@ -86,6 +87,9 @@ class WryDict(OrderedDict):
         for key, value in self.iteritems():
             items += '%r: %r, ' % (key, value)
         return bookends[0] + items + bookends[-1]
+
+    def as_json(self, indent=4):
+        return json.dumps(self, indent=indent)
 
 
 def _convert_values(input_dict):

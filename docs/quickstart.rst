@@ -17,5 +17,6 @@ Currently, the following namespaces are implemented:
 
     - dev.power, via :class:`wry.device.AMTPower`
     - dev.kvm, via :class:`wry.device.AMTKVM`
+    - dev.boot, via :class:`wry.device.AMTBoot`
 
 You can click on a class name above, to see documentation for the available methods.

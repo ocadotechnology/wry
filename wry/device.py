@@ -188,7 +188,6 @@ class DeviceCapability(object):
         else:
             resource = WryDict({resource_name: input_dict})
         response = common.put_resource(self.client, resource, silent=silent, options=self.options)
-        print response
 
 
 class AMTPower(DeviceCapability):
@@ -372,10 +371,6 @@ class AMTKVM(DeviceCapability):
 class AMTBoot(DeviceCapability):
     '''Control how the machine will boot next time.'''
 
-    def __init__(self, *args, **kwargs):
-        self.resource_name = 'AMT_BootSettingData'
-        super(AMTBoot, self).__init__(*args, **kwargs)
-
     @lazy_property
     def capabilities(self):
         '''A WryDict of boot capabilities.'''
@@ -393,29 +388,43 @@ class AMTBoot(DeviceCapability):
         # Add a 'Default' so it can be re-set?
 
     @property
+    def medium(self):
+        pass
+
+    @medium.setter
+    def medium(self, value):
+        pass
+
+    @property
     def supported_options(self):
         '''Boot capabilities supported by the device, that are not boot media.'''
         return tuple(cap for cap in self._supported_capabilities if not re.match(r'^Force(.+)Boot$', cap))
 
     @property
-    def medium(self):
-        pass
-
-    @property
     def config(self):
         '''Get configuration for the machine's next boot.'''
-        return self.get(self.resource_name)
+        return self.get('AMT_BootSettingData')
 
     def enable(self, *capabilities):
         '''Enable the specified capabilit[ies] for next boot.'''
-        enabled = dict((cap, True) for cap in capabilities)
-        # Implement a check to see if they are supported? Or let it return the fault?
-        settings = self.put(self.resource_name, enabled)
+        return self._set_capabilities(True, *capabilities)
+
+    def disable(self, *capabilities):
+        '''Disable the specified capabilit[ies] for next boot.'''
+        return self._set_capabilities(False, *capabilities)
+
+    def _set_capabilities(self, enabled_state, *capabilities):
+        if enabled_state == True:
+            role = '1'
+        elif enabled_state == False:
+            role = '32768'
+
+        to_put = dict((cap, True) for cap in capabilities)
+        settings = self.put('AMT_BootSettingData', to_put)
         svc = self.get('CIM_BootService')
         assert svc['ElementName'] == 'Intel(r) AMT Boot Service'
-        resource_name = 'CIM_BootService'
         input_dict = {
-            resource_name: {
+            'CIM_BootService': {
                 'SetBootConfigRole_INPUT': OrderedDict([
                     ('@xmlns', RESOURCE_URIs['CIM_BootService']),
 
@@ -442,7 +451,7 @@ class AMTBoot(DeviceCapability):
                     ])),
 
                     ('Role', OrderedDict([
-                        ('#text', '1'), # Would like to be able to specify that as an int...
+                        ('#text', role),
                         ('@xmlns', RESOURCE_URIs['CIM_BootService']),
                     ])),
                 ]),

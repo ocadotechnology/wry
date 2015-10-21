@@ -188,7 +188,6 @@ class DeviceCapability(object):
         else:
             resource = WryDict({resource_name: input_dict})
         response = common.put_resource(self.client, resource, silent=silent, options=self.options)
-        print response
 
 
 class AMTPower(DeviceCapability):

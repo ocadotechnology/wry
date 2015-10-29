@@ -35,9 +35,6 @@ If you wish to access the pure pywsman client object, it is available as ``dev.c
 .. autoclass:: wry.device.AMTKVM
     :members:
 
-.. autoclass:: wry.device.AMTBoot
-    :members:
-
 .. .. automodule:: wry.common
     :members:
 

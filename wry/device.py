@@ -62,21 +62,6 @@ schema class.
 '''
 
 
-class lazy_property(object):
-    '''A property that is evaluated on first access, and never again thereafter.'''
-
-    def __init__(self, getter):
-        self.getter = getter
-        self.getter_name = getter.__name__
-
-    def __get__(self, obj, _):
-        if obj is None:
-            return None
-        value = self.getter(obj)
-        setattr(obj, self.getter_name, value)
-        return value
-
-
 class AMTDevice(object):
     '''A wrapper class which packages AMT functionality into an accessible, device-centric format.'''
 
@@ -86,7 +71,6 @@ class AMTDevice(object):
         self.client = pywsman.Client(location, port, path, protocol, username, password)
         self.options = pywsman.ClientOptions()
 
-        self.boot = AMTBoot(self.client, self.options)
         self.power = AMTPower(self.client, self.options)
         self.kvm = AMTKVM(self.client, self.options)
 
@@ -256,11 +240,6 @@ class AMTPower(DeviceCapability):
         '''Reboot the device.'''
         return self.request_power_state_change(5)
 
-    #def reset_from(self):
-    #    '''Reboot the device, booting from the specified medium.'''
-    #    self.
-    #    return self.reset()
-
     def toggle(self):
         """
         If the device is off, turn it on.
@@ -360,93 +339,9 @@ class AMTKVM(DeviceCapability):
         Session timeout. An integer.
         '''
         return self.get('IPS_KVMRedirectionSettingData', 'SessionTimeout')
-
     @session_timeout.setter
     def session_timeout(self, value):
         return self.put({'SessionTimeout': value})
 
     def password(self, password=None):
         raise NotImplemented
-
-
-class AMTBoot(DeviceCapability):
-    '''Control how the machine will boot next time.'''
-
-    def __init__(self, *args, **kwargs):
-        self.resource_name = 'AMT_BootSettingData'
-        super(AMTBoot, self).__init__(*args, **kwargs)
-
-    @lazy_property
-    def capabilities(self):
-        '''A WryDict of boot capabilities.'''
-        return self.get('AMT_BootCapabilities')
-
-    @property
-    def _supported_capabilities(self):
-        '''Supported boot capabilities.'''
-        return tuple(key for key, value in self.capabilities.items() if value == True)
-
-    @property
-    def supported_media(self):
-        '''Media the device can be configured to boot from.'''
-        return tuple(result.group(1) for result in (re.match(r'^Force(.+)Boot$', cap) for cap in self._supported_capabilities) if result)
-        # Add a 'Default' so it can be re-set?
-
-    @property
-    def supported_options(self):
-        '''Boot capabilities supported by the device, that are not boot media.'''
-        return tuple(cap for cap in self._supported_capabilities if not re.match(r'^Force(.+)Boot$', cap))
-
-    @property
-    def medium(self):
-        pass
-
-    @property
-    def config(self):
-        '''Get configuration for the machine's next boot.'''
-        return self.get(self.resource_name)
-
-    def enable(self, *capabilities):
-        '''Enable the specified capabilit[ies] for next boot.'''
-        enabled = dict((cap, True) for cap in capabilities)
-        # Implement a check to see if they are supported? Or let it return the fault?
-        settings = self.put(self.resource_name, enabled)
-        svc = self.get('CIM_BootService')
-        assert svc['ElementName'] == 'Intel(r) AMT Boot Service'
-        resource_name = 'CIM_BootService'
-        input_dict = {
-            resource_name: {
-                'SetBootConfigRole_INPUT': OrderedDict([
-                    ('@xmlns', RESOURCE_URIs['CIM_BootService']),
-
-                    ('BootConfigSetting', OrderedDict([
-                        ('Address', {
-                            '#text': SCHEMAS['addressing'],
-                            '@xmlns': SCHEMAS['addressing'],
-                        }),
-                        ('@xmlns', RESOURCE_URIs['CIM_BootService']),
-                        ('ReferenceParameters', {
-                            'ResourceURI': {
-                                '#text': RESOURCE_URIs['CIM_BootConfigSetting'],
-                                '@xmlns': SCHEMAS['wsman'],
-                            },
-                            '@xmlns': SCHEMAS['addressing'],
-                            'SelectorSet': {
-                                'Selector': {
-                                    '#text': 'Intel(r) AMT: Boot Configuration 0',
-                                    '@Name': 'InstanceID',
-                                },
-                                '@xmlns': SCHEMAS['wsman'],
-                            },
-                        }),
-                    ])),
-
-                    ('Role', OrderedDict([
-                        ('#text', '1'), # Would like to be able to specify that as an int...
-                        ('@xmlns', RESOURCE_URIs['CIM_BootService']),
-                    ])),
-                ]),
-            }
-        }
-        response = common.invoke_method(self.client, 'SetBootConfigRole', input_dict, options=self.options)
-        return not response['SetBootConfigRole_OUTPUT']['ReturnValue']

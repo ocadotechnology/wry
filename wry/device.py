@@ -62,6 +62,21 @@ schema class.
 '''
 
 
+class lazy_property(object):
+    '''A property that is evaluated on first access, and never again thereafter.'''
+
+    def __init__(self, getter):
+        self.getter = getter
+        self.getter_name = getter.__name__
+
+    def __get__(self, obj, _):
+        if obj is None:
+            return None
+        value = self.getter(obj)
+        setattr(obj, self.getter_name, value)
+        return value
+
+
 class AMTDevice(object):
     '''A wrapper class which packages AMT functionality into an accessible, device-centric format.'''
 
@@ -172,7 +187,6 @@ class DeviceCapability(object):
         else:
             resource = WryDict({resource_name: input_dict})
         response = common.put_resource(self.client, resource, silent=silent, options=self.options)
-        print response
 
 
 class AMTPower(DeviceCapability):
@@ -339,6 +353,7 @@ class AMTKVM(DeviceCapability):
         Session timeout. An integer.
         '''
         return self.get('IPS_KVMRedirectionSettingData', 'SessionTimeout')
+
     @session_timeout.setter
     def session_timeout(self, value):
         return self.put({'SessionTimeout': value})

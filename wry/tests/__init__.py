@@ -18,8 +18,6 @@ import os
 
 import wry
 
-#: Do not retry connections, as there is nothing to connect to. This does not work :(
-mock.patch('wry.decorators.retry', lambda x: x).start()
 from wry.tests import data
 
 
@@ -39,6 +37,7 @@ class PowerTests(unittest.TestCase):
         pywsman.fclose(self.dumpfile)
         os.remove(self.dumpfile_name)
 
+    @mock.patch('wry.decorators.CONNECT_RETRIES', 0)
     def test_power_on(self):
         try:
             self.power.turn_on()

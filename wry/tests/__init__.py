@@ -45,10 +45,9 @@ class PowerTests(unittest.TestCase):
         except wry.exceptions.AMTConnectFailure:
             pass
         with open(self.dumpfile_name, 'r') as output:
-            self.assertTrue(
-                data.power_state_change(2).match(
-                    output.read()
-                )
+            self.assertRegexpMatches(
+                output.read(),
+                data.power_state_change(2),
             )
 
 

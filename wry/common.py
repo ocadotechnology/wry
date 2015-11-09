@@ -100,11 +100,13 @@ def wsman_invoke(client, resource_uri, method, data=None, options=None, silent=F
     return _validate(doc, silent=silent)
 
 
-def get_resource(client, resource_name, options=None):
+def get_resource(client, resource_name, options=None, as_xmldoc=False):
     '''
     '''
     uri = RESOURCE_URIs[resource_name]
     doc = wsman_get(client, uri, options=options)
+    if as_xmldoc:
+        return doc
     return WryDict(doc)
  
 

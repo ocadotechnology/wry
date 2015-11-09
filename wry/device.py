@@ -111,12 +111,12 @@ class AMTDevice(object):
         else:
             self.options.clear_dump_request()
 
-    def get_resource(self, resource_name):
+    def get_resource(self, resource_name, as_xmldoc=False):
         '''
         Get a native representaiton of a resource, by name. The resource URI will be
         sourced from config.RESOURCE_URIs
         '''
-        return common.get_resource(self.client, resource_name, options=self.options)
+        return common.get_resource(self.client, resource_name, options=self.options, as_xmldoc=as_xmldoc)
 
     def enumerate_resource(self, resource_name): # Add in all relevant kwargs...
         '''

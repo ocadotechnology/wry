@@ -86,6 +86,7 @@ class AMTDevice(object):
         self.client = pywsman.Client(location, port, path, protocol, username, password)
         self.options = pywsman.ClientOptions()
 
+        self.boot = AMTBoot(self.client, self.options)
         self.power = AMTPower(self.client, self.options)
         self.kvm = AMTKVM(self.client, self.options)
 
@@ -110,12 +111,12 @@ class AMTDevice(object):
         else:
             self.options.clear_dump_request()
 
-    def get_resource(self, resource_name):
+    def get_resource(self, resource_name, as_xmldoc=False):
         '''
         Get a native representaiton of a resource, by name. The resource URI will be
         sourced from config.RESOURCE_URIs
         '''
-        return common.get_resource(self.client, resource_name, options=self.options)
+        return common.get_resource(self.client, resource_name, options=self.options, as_xmldoc=as_xmldoc)
 
     def enumerate_resource(self, resource_name): # Add in all relevant kwargs...
         '''
@@ -178,7 +179,7 @@ class DeviceCapability(object):
 
     def put(self, resource_name=None, input_dict=None, silent=False,
         as_update=True): # Ideally want keyword-only args or a refactor here.
-                         #Want to be able to supply only input_dict...
+                         # Want to be able to supply only input_dict...
         if not resource_name:
             resource_name = self.resource_name
         if as_update:
@@ -188,6 +189,9 @@ class DeviceCapability(object):
             resource = WryDict({resource_name: input_dict})
         response = common.put_resource(self.client, resource, silent=silent, options=self.options)
 
+    def walk(self, resource_name,  wsman_filter=None):
+        '''Enumerate a resource.'''
+        return common.enumerate_resource(self.client, resource_name, wsman_filter=wsman_filter, options=self.options)
 
 class AMTPower(DeviceCapability):
     '''Control over a device's power state.'''
@@ -197,37 +201,17 @@ class AMTPower(DeviceCapability):
         super(AMTPower, self).__init__(*args, **kwargs)
 
     def request_power_state_change(self, power_state): 
-        resource_name = 'CIM_PowerManagementService'
-        input_dict = {  
-            resource_name: {
-                'RequestPowerStateChange_INPUT': {
-                    'PowerState': power_state,
-                    'ManagedElement': OrderedDict([
-                        ('Address', {
-                            '#text': SCHEMAS['addressing_anonymous'],
-                            '@xmlns': SCHEMAS['addressing'],
-                        }),  
-                        ('ReferenceParameters', {      
-                            'ResourceURI': {    
-                                '#text': RESOURCE_URIs['CIM_ComputerSystem'],
-                                '@xmlns': SCHEMAS['wsman'],
-                            },
-                            '@xmlns': SCHEMAS['addressing'],
-                            'SelectorSet': {    
-                                'Selector': {       
-                                    '#text': 'ManagedSystem',
-                                    '@Name': 'Name',
-                                },
-                                '@xmlns': SCHEMAS['wsman'],
-                            },
-                        }),
-                    ]),
-                },  
-            }
-        }    
-        self.options.add_selector('Name', 'Intel(r) AMT Power Management Service') # possible to work on a copy of this?
-        response = common.invoke_method(self.client, 'RequestPowerStateChange', input_dict, options=self.options)
-        return not response['RequestPowerStateChange_OUTPUT']['ReturnValue']
+        return common.invoke_method(
+            service_name='CIM_PowerManagementService',
+            resource_name='CIM_ComputerSystem',
+            affected_item='ManagedElement',
+            method_name='RequestPowerStateChange',
+            options=self.options,
+            client=self.client,
+            selector=('Name', 'ManagedSystem', 'Intel(r) AMT Power Management Service', ),
+            args_before=[('PowerState', str(power_state)), ],
+            anonymous=True,
+        )
 
     @property
     def state(self):
@@ -279,7 +263,13 @@ class AMTKVM(DeviceCapability):
                 },
             }
         }
-        return common.invoke_method(self.client, 'RequestStateChange', input_dict, options=self.options)
+        return common.invoke_method(
+            service_name='CIM_KVMRedirectionSAP',
+            method_name='RequestStateChange',
+            options=self.options,
+            client=self.client,
+            args_before=[('RequestedState', str(requested_state)), ],
+        )
 
     @property
     def enabled(self):
@@ -360,3 +350,78 @@ class AMTKVM(DeviceCapability):
 
     def password(self, password=None):
         raise NotImplemented
+
+
+class AMTBoot(DeviceCapability):
+    '''Control how the machine will boot next time.'''
+
+    @property
+    def supported_media(self):
+        '''Media the device can be configured to boot from.'''
+        returned = self.walk('CIM_BootSourceSetting')
+        return [source['StructuredBootString'].split(':')[-2] for source in returned['CIM_BootSourceSetting']]
+
+    @property
+    def medium(self):
+        raise NotImplemented('It is not currently possible to detect which medium a device will boot from.')
+
+    @medium.setter
+    def medium(self, value):
+        '''Set boot medium for next boot.'''
+        # Zero out boot options - unwise, but just testing right now...
+        settings = self.get('AMT_BootSettingData')
+        for setting in settings:
+            if type(settings[setting]) == int:
+                settings[setting] = 0
+            elif type(settings[setting]) == bool:
+                settings[setting] = False
+            else:
+                pass
+
+        sources = self.walk('CIM_BootSourceSetting')['CIM_BootSourceSetting']
+        for source in sources:
+            if value in source['StructuredBootString']:
+                instance_id = source['InstanceID']
+                break
+        else:
+            raise LookupError('This medium is not supported by the device')
+
+        boot_config = self.get('CIM_BootConfigSetting') # Should be an
+        # enumerate, as it has intances... But for now...
+        config_instance = str(boot_config['InstanceID'])
+
+        response = common.invoke_method(
+            service_name='CIM_BootConfigSetting',
+            resource_name='CIM_BootSourceSetting',
+            affected_item='Source',
+            method_name='ChangeBootOrder',
+            options=self.options,
+            client=self.client,
+            selector=('InstanceID', instance_id, config_instance, ),
+        )
+        self._set_boot_config_role()
+        return response
+
+    @property
+    def config(self):
+        '''Get configuration for the machine's next boot.'''
+        return self.get('AMT_BootSettingData')
+
+    def _set_boot_config_role(self, enabled_state=True):
+        if enabled_state == True:
+            role = '1'
+        elif enabled_state == False:
+            role = '32768'
+        svc = self.get('CIM_BootService')
+        assert svc['ElementName'] == 'Intel(r) AMT Boot Service'
+        return common.invoke_method(
+            service_name='CIM_BootService',
+            resource_name='CIM_BootConfigSetting',
+            affected_item='BootConfigSetting',
+            method_name='SetBootConfigRole',
+            options=self.options,
+            client=self.client,
+            selector=('InstanceID', 'Intel(r) AMT: Boot Configuration 0', ),
+            args_after=[('Role', role)],
+        )
+

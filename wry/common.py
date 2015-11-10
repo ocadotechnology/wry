@@ -21,8 +21,9 @@ from xml.etree import ElementTree
 from wry import data_structures
 from wry import exceptions
 from wry.decorators import retry, add_client_options
-from wry.config import RESOURCE_URIs
+from wry.config import RESOURCE_URIs, SCHEMAS
 from wry.data_structures import _strip_namespace_prefixes, WryDict
+from collections import OrderedDict
 
 
 
@@ -43,6 +44,18 @@ def _validate(doc, silent=False):
         if doc.is_fault():
             raise exceptions.WSManFault(doc)
     return doc
+
+
+def get_options_copy(options):
+    new_options = pywsman.ClientOptions()
+    for attr in dir(options):
+        if attr.startswith('get_'):
+            setter = attr.replace('get_', 'set_')
+            value = getattr(options, attr)()
+            getattr(options, setter)(value)
+    if options.get_flags() == 16:
+        new_options.set_dump_request()
+    return new_options
 
 
 @add_client_options
@@ -87,11 +100,13 @@ def wsman_invoke(client, resource_uri, method, data=None, options=None, silent=F
     return _validate(doc, silent=silent)
 
 
-def get_resource(client, resource_name, options=None):
+def get_resource(client, resource_name, options=None, as_xmldoc=False):
     '''
     '''
     uri = RESOURCE_URIs[resource_name]
     doc = wsman_get(client, uri, options=options)
+    if as_xmldoc:
+        return doc
     return WryDict(doc)
  
 
@@ -129,17 +144,63 @@ def put_resource(client, indict, options=None, uri=None, silent=False):
     return WryDict(doc)
 
 
-def invoke_method(client, method, input_dict, options=None):
-    resource_name = input_dict.keys()[0]
-    input_dict = WryDict(input_dict).with_namespaces()
-    data = input_dict[resource_name]
-    uri = data.pop(u'@xmlns')
-    data.values()[0][u'@xmlns'] = uri
+def invoke_method(service_name, method_name, options, client, resource_name=None, affected_item=None, selector=None, args_before=(), args_after=(), anonymous=False):
+    '''
+    selector should be a dictionary in the form:
+    {selector_name: {element_name: element_value}} ???
+    Change this for a tuple, I think, it will make things easier.
+    '''
+    if anonymous:
+        address_schema = 'addressing_anonymous'
+    else:
+        address_schema = 'addressing'
+    options = get_options_copy(options)
+    service_uri = RESOURCE_URIs[service_name]
+
+    def add_arguments(data_dict, argument_pairs=()):
+        for arg_name, arg_value in argument_pairs:
+            data_dict[method_name + '_INPUT'][arg_name] = {
+                '#text': arg_value,
+                '@xmlns': service_uri,
+            }
+
+    data = {method_name + '_INPUT': OrderedDict({'@xmlns': service_uri})}
+    add_arguments(data, args_before)
+    if resource_name:
+        data[method_name + '_INPUT'].update(OrderedDict([
+            (affected_item, OrderedDict([
+                ('@xmlns', service_uri),
+                ('Address', {
+                    '#text': SCHEMAS[address_schema],
+                    '@xmlns': SCHEMAS['addressing'],
+                }),
+                ('ReferenceParameters', {
+                    'ResourceURI': {
+                        '#text': RESOURCE_URIs[resource_name],
+                        '@xmlns': SCHEMAS['wsman'],
+                    },
+                    '@xmlns': SCHEMAS['addressing'],
+                }),
+            ]))
+        ]))
+    add_arguments(data, args_after)
+    if selector:
+        data[method_name + '_INPUT'][affected_item]['ReferenceParameters']['SelectorSet'] = {
+            'Selector': {
+                '#text': selector[1],
+                '@Name': selector[0],
+            },
+            '@xmlns': SCHEMAS['wsman'],
+        }
+        if len(selector) > 2:
+            assert len(selector) == 3
+            options.add_selector(selector[0], selector[-1])
+
     xml = xmltodict.unparse(data, full_document=False, pretty=True)
-    doc = wsman_invoke(client, RESOURCE_URIs[resource_name], method, xml, options=options)
+    doc = wsman_invoke(client, service_uri, method_name, xml, options=options)
     returned = WryDict(doc)
-    return_value = returned[returned.keys()[0]]['ReturnValue']
+    return_value = returned[method_name + '_OUTPUT']['ReturnValue']
     if return_value != 0:
         raise exceptions.NonZeroReturn(return_value)
-    return returned
+    return not return_value
 

@@ -361,7 +361,7 @@ class AMTKVM(DeviceCapability):
 
     @consent_required.setter
     def consent_required(self, value):
-        self.set('IPS_KVMRedirectionSettingData', {'OptInPolicy': value})
+        self.put('IPS_KVMRedirectionSettingData', {'OptInPolicy': value})
 
 class AMTBoot(DeviceCapability):
     '''Control how the machine will boot next time.'''

@@ -14,9 +14,10 @@
 
 # encoding: utf-8
 '''
-dump -- Dump the AMT Data From A Machine
+wrykvmconfig -- Configure The KVM On A Machine
 
-dump is a tool to extract the AMT data from a machine and display it
+wrykvmconfig is a tool to enable or disable the RFB KVM port on a machine and
+set the RFB KVM password
 
 @author:     Adrian Hungate
 

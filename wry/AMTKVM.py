@@ -121,6 +121,7 @@ class AMTKVM(DeviceCapability.DeviceCapability):
         else:
             raise TypeError('Please specify Either True or False.')
 
+    @property
     def enabled_ports(self):
         '''Tells you (and/or allows you to set) the enabled ports for VNC.'''
 

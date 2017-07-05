@@ -43,16 +43,11 @@ class AMTDevice(object):
     @property
     def debug(self):
         '''
-        When set to True, openwsman will dump every [#]_ request made to the
-        client.
-
-        Unfortunately, openwsman does not expose this value, so it only possible
-        to set this property, and not to retrieve it.
-
-        .. [#] Actually, every request that makes use of self.options.
+        When set to True, openwsman will dump every [#]_ request made to the client.
         '''
-        raise NotImplemented('There is no way to get the value of this property. Please set it explicitly.')
-        return self.options.get_dump_request()
+        if self.options.get_flags() == 16:
+            return True
+        return False
 
     @debug.setter
     def debug(self, value):

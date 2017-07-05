@@ -85,10 +85,10 @@ USAGE
         parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
         parser.add_argument("-v", "--verbose", dest="verbose", action="count", help="set verbosity level [default: %(default)s]", default=False)
         parser.add_argument("-H", "--host", dest="host", help="host to connect to. [default: %(default)s]", metavar="name/ip")
-        parser.add_argument("-s", "--ssl", dest="ssl", help="connect using ssl. [default: %(default)s]", default=False)
+        parser.add_argument("-s", "--ssl", action="store_true", dest="ssl", help="connect using ssl. [default: %(default)s]", default=False)
         parser.add_argument("-n", "--name", dest="name", help="name to login as. [default: %(default)s]", metavar="name")
         parser.add_argument("-p", "--password", dest="password", help="login password. [default: %(default)s]", metavar="password")
-        parser.add_argument("-k", "--kvm-enable", dest="kvmenable", help="Enable or disable RFB KVM access on port 5900. [default: %(default)s]", metavar="Enable", default=False)
+        parser.add_argument("-k", "--kvm-enable", action="store_true", dest="kvmenable", help="Enable or disable RFB KVM access on port 5900. [default: %(default)s]", default=False)
         parser.add_argument("-K", "--kvm-password", dest="kvmpassword", help="Set the RFB KVM password", metavar="KVM Password")
         parser.add_argument('-V', '--version', action='version', version=program_version_message)
 
@@ -103,15 +103,20 @@ USAGE
         name = args.name
         password = args.password
         verbose = args.verbose
+        kvmenable = args.kvmenable
+        kvmpassword = args.kvmpassword
+        if kvmpassword != None:
+            kvmenable = True
 
         if verbose > 0:
             print("Verbose mode on")
 
         dev = wry.AMTDevice(host, scheme, name, password)
-        dev.kvm.enabled = True
-        dev.kvm.password = host.vncpass
+        dev.kvm.enabled = kvmenable
+        if kvmpassword != None:
+            dev.kvm.password = kvmpassword
         dev.kvm.consent_required = None
-        dev.kvm.port_5900_enabled = True
+        dev.kvm.port_5900_enabled = kvmenable
         dev.kvm.opt_in_timeout = None
         dev.kvm.session_timeout = 20
 

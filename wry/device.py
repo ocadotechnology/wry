@@ -200,7 +200,7 @@ class AMTPower(DeviceCapability):
         self.resource_name = 'CIM_AssociatedPowerManagementService'
         super(AMTPower, self).__init__(*args, **kwargs)
 
-    def request_power_state_change(self, power_state): 
+    def request_power_state_change(self, power_state):
         return common.invoke_method(
             service_name='CIM_PowerManagementService',
             resource_name='CIM_ComputerSystem',
@@ -217,7 +217,7 @@ class AMTPower(DeviceCapability):
     def state(self):
         '''
         A property which describes the machine's power state.
-        
+
         A :class:`wry.device.StateMap` as described in
         :data:`wry.device.AMT_POWER_STATE_MAP`.
         '''
@@ -294,15 +294,12 @@ class AMTKVM(DeviceCapability):
             raise TypeError('Please specify Either True or False.')
 
     @property
-    def enabled_ports(self):
-        raise NotImplemented
-
-    @property
     def port_5900_enabled(self):
         '''
         Whether the standard VNC port (5900) is enabled. True/False.
         '''
         return self.get('IPS_KVMRedirectionSettingData', 'Is5900PortEnabled')
+
     @port_5900_enabled.setter
     def port_5900_enabled(self, value):
         return self.put('IPS_KVMRedirectionSettingData', {'Is5900PortEnabled': value})
@@ -313,9 +310,10 @@ class AMTKVM(DeviceCapability):
         Default Screen. An integer.
         '''
         return self.get('IPS_KVMRedirectionSettingData', 'DefaultScreen')
+
     @default_screen.setter
     def default_screen(self, value):
-         return self.put({'DefaultScreen': value})
+         return self.put('IPS_KVMRedirectionSettingData', {'DefaultScreen': value})
 
     @property
     def opt_in_timeout(self):
@@ -330,12 +328,13 @@ class AMTKVM(DeviceCapability):
         return timeout
         # Would be nice to have a way to get multiple values without querying
         # twice...
+
     @opt_in_timeout.setter
     def opt_in_timeout(self, value):
         if not value:
-             return self.put({'OptInPolicy': False})
+             return self.put('IPS_KVMRedirectionSettingData', {'OptInPolicy': False})
         else:
-             return self.put({'OptInPolicy': True, 'OptInPolicyTimeout': value})
+             return self.put('IPS_KVMRedirectionSettingData', {'OptInPolicy': True, 'OptInPolicyTimeout': value})
 
     @property
     def session_timeout(self):
@@ -346,11 +345,23 @@ class AMTKVM(DeviceCapability):
 
     @session_timeout.setter
     def session_timeout(self, value):
-        return self.put({'SessionTimeout': value})
+        return self.put('IPS_KVMRedirectionSettingData', {'SessionTimeout': value})
 
-    def password(self, password=None):
-        raise NotImplemented
+    @property
+    def password(self):
+        return self.get('IPS_KVMRedirectionSettingData', 'RFBPassword')
 
+    @password.setter
+    def password(self, value):
+        self.put('IPS_KVMRedirectionSettingData', {'RFBPassword': value})
+
+    @property
+    def consent_required(self):
+        return self.get('IPS_KVMRedirectionSettingData', 'OptInPolicy')
+
+    @consent_required.setter
+    def consent_required(self, value):
+        self.put('IPS_KVMRedirectionSettingData', {'OptInPolicy': value})
 
 class AMTBoot(DeviceCapability):
     '''Control how the machine will boot next time.'''

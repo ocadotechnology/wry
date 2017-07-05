@@ -19,13 +19,12 @@ from os import path
 from wry.version import __VERSION__
 
 
-
 setup(
     name='wry',
     version=__VERSION__,
     packages=find_packages(),
-    author='Ahmad Jagot',
-    author_email='ahmad.jagot@ocado.com',
+    author='Adrian Hungate',
+    author_email='adrian.hungate@ocado.com',
     description='Library for managing Intel AMT.',
     long_description=open('README.md').read(),
     url='https://github.com/ocadotechnology/wry/',

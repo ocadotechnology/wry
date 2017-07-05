@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -24,8 +26,10 @@ from wry.decorators import retry, add_client_options
 from wry.config import RESOURCE_URIs, SCHEMAS
 from wry.data_structures import _strip_namespace_prefixes, WryDict
 from collections import OrderedDict
+from collections import namedtuple
 
 
+StateMap = namedtuple('StateMap', ['state', 'sub_state'])
 
 _SOAP_ENVELOPE = 'http://www.w3.org/2003/05/soap-envelope'
 
@@ -108,7 +112,7 @@ def get_resource(client, resource_name, options=None, as_xmldoc=False):
     if as_xmldoc:
         return doc
     return WryDict(doc)
- 
+
 
 def enumerate_resource(client, resource_name, wsman_filter=None, options=None):
     '''
@@ -157,6 +161,7 @@ def invoke_method(service_name, method_name, options, client, resource_name=None
     options = get_options_copy(options)
     service_uri = RESOURCE_URIs[service_name]
 
+
     def add_arguments(data_dict, argument_pairs=()):
         for arg_name, arg_value in argument_pairs:
             data_dict[method_name + '_INPUT'][arg_name] = {
@@ -203,4 +208,3 @@ def invoke_method(service_name, method_name, options, client, resource_name=None
     if return_value != 0:
         raise exceptions.NonZeroReturn(return_value)
     return not return_value
-

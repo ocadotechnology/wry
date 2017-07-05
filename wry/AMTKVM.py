@@ -1,0 +1,140 @@
+#!/usr/bin/env python2
+
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+import DeviceCapability
+import common
+
+'''
+Created on 4 Jul 2017
+
+@author: adrian
+'''
+
+AMT_KVM_ENABLEMENT_MAP = {
+    2: common.StateMap(True, 'Enabled'),
+    6: common.StateMap(True, 'Enabled But Offline'),
+    3: common.StateMap(False, 'Disabled'),
+}
+
+class AMTKVM(DeviceCapability.DeviceCapability):
+    '''Control over a device's KVM (VNC) functionality.'''
+
+    def request_state_change(self, resource_name, requested_state):
+        input_dict = {
+            resource_name:
+                {'RequestStateChange_INPUT': {
+                    'RequestedState': requested_state,
+                },
+            }
+        }
+        return common.invoke_method(
+            service_name='CIM_KVMRedirectionSAP',
+            method_name='RequestStateChange',
+            options=self.options,
+            client=self.client,
+            args_before=[('RequestedState', str(requested_state)), ],
+        )
+
+    @property
+    def enabled(self):
+        '''
+        Whether KVM functionality is enabled or disabled.
+
+        True/False
+
+        .. note:: This will return True even if KVM is enabled, but no ports for it
+           are.
+        '''
+        e_state = self.get('CIM_KVMRedirectionSAP', 'EnabledState')
+        return AMT_KVM_ENABLEMENT_MAP[e_state].state
+
+    @enabled.setter
+    def enabled(self, value):
+        if value is True:
+            self.request_state_change('CIM_KVMRedirectionSAP', 2)
+        elif value is False:
+            self.request_state_change('CIM_KVMRedirectionSAP', 3)
+        else:
+            raise TypeError('Please specify Either True or False.')
+
+    @property
+    def port_5900_enabled(self):
+        '''
+        Whether the standard VNC port (5900) is enabled. True/False.
+        '''
+        return self.get('IPS_KVMRedirectionSettingData', 'Is5900PortEnabled')
+
+    @port_5900_enabled.setter
+    def port_5900_enabled(self, value):
+        return self.put('IPS_KVMRedirectionSettingData', {'Is5900PortEnabled': value})
+
+    @property
+    def default_screen(self):
+        '''
+        Default Screen. An integer.
+        '''
+        return self.get('IPS_KVMRedirectionSettingData', 'DefaultScreen')
+
+    @default_screen.setter
+    def default_screen(self, value):
+        return self.put('IPS_KVMRedirectionSettingData', {'DefaultScreen': value})
+
+    @property
+    def opt_in_timeout(self):
+        '''
+        User opt-in timeout for KVM access, in seconds.
+
+        If set to 0, opt-in will be disabled.
+        '''
+        timeout = (not self.get('IPS_KVMRedirectionSettingData', 'OptInPolicy')) or self.get('IPS_KVMRedirectionSettingData', 'OptInPolicyTimeout')
+        if timeout == True: # This is NOT READABLE...
+            return 0
+        return timeout
+        # Would be nice to have a way to get multiple values without querying
+        # twice...
+
+    @opt_in_timeout.setter
+    def opt_in_timeout(self, value):
+        if not value:
+            return self.put('IPS_KVMRedirectionSettingData', {'OptInPolicy': False})
+        else:
+            return self.put('IPS_KVMRedirectionSettingData', {'OptInPolicy': True, 'OptInPolicyTimeout': value})
+
+    @property
+    def session_timeout(self):
+        '''
+        Session timeout. An integer.
+        '''
+        return self.get('IPS_KVMRedirectionSettingData', 'SessionTimeout')
+
+    @session_timeout.setter
+    def session_timeout(self, value):
+        return self.put('IPS_KVMRedirectionSettingData', {'SessionTimeout': value})
+
+    @property
+    def password(self):
+        "This doesn't fail but always appears to return None"
+        return self.get('IPS_KVMRedirectionSettingData', 'RFBPassword')
+
+    @password.setter
+    def password(self, value):
+        self.put('IPS_KVMRedirectionSettingData', {'RFBPassword': value})
+
+    @property
+    def consent_required(self):
+        return self.get('IPS_KVMRedirectionSettingData', 'OptInPolicy')
+
+    @consent_required.setter
+    def consent_required(self, value):
+        self.put('IPS_KVMRedirectionSettingData', {'OptInPolicy': value})

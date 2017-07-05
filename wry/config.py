@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -22,22 +24,22 @@ _URI_PREFIXES = {
 
 
 RESOURCE_METHODS = {
-        # Resource names can be added here, and their respective URIs should be
-        # auto-generated.
-        'CIM_AssociatedPowerManagementService': ['get'],
-        'CIM_PowerManagementService': ['get', 'request_power_state_change'],
-        'CIM_ComputerSystem': ['get'],
-        'CIM_BootConfigSetting': ['get', 'change_boot_order'],
-        'CIM_BootSourceSetting': ['enumerate', 'pull'],
-        'CIM_BootService': ['get', 'set_boot_config_role'],
-        'CIM_KVMRedirectionSAP': ['get', 'put'],
-        'IPS_KVMRedirectionSettingData': ['get', 'put'],
-        'AMT_RedirectionService': ['get', 'put'],
-        'AMT_TLSSettingData': ['get', 'put'],
-        'AMT_BootCapabilities': ['get'],
-        'AMT_BootSettingData': ['get', 'put'],
-        'AMT_EthernetPortSettings': ['get', 'put'],
-        'AMT_GeneralSettings': ['get', 'put'],
+    # Resource names can be added here, and their respective URIs should be
+    # auto-generated.
+    'CIM_AssociatedPowerManagementService': ['get'],
+    'CIM_PowerManagementService': ['get', 'request_power_state_change'],
+    'CIM_ComputerSystem': ['get'],
+    'CIM_BootConfigSetting': ['get', 'change_boot_order'],
+    'CIM_BootSourceSetting': ['enumerate', 'pull'],
+    'CIM_BootService': ['get', 'set_boot_config_role'],
+    'CIM_KVMRedirectionSAP': ['get', 'put'],
+    'IPS_KVMRedirectionSettingData': ['get', 'put'],
+    'AMT_RedirectionService': ['get', 'put'],
+    'AMT_TLSSettingData': ['get', 'put'],
+    'AMT_BootCapabilities': ['get'],
+    'AMT_BootSettingData': ['get', 'put'],
+    'AMT_EthernetPortSettings': ['get', 'put'],
+    'AMT_GeneralSettings': ['get', 'put'],
 }
 
 

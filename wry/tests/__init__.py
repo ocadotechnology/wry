@@ -42,7 +42,7 @@ class PowerTests(WryTest):
 
     def setUp(self):
         super(PowerTests, self).setUp()
-        self.power = wry.device.AMTPower(self.client, self.options)
+        self.power = wry.AMTPower(self.client, self.options)
 
     @mock.patch('wry.decorators.CONNECT_RETRIES', 0)
     def test_power_on(self):
@@ -62,7 +62,7 @@ class KVMTests(WryTest):
 
     def setUp(self):
         super(KVMTests, self).setUp()
-        self.kvm = wry.device.AMTKVM(self.client, self.options)
+        self.kvm = wry.AMTKVM(self.client, self.options)
 
     @mock.patch('wry.decorators.CONNECT_RETRIES', 0)
     def test_kvm_enable(self):
@@ -82,7 +82,7 @@ class BootTests(WryTest):
 
     def setUp(self):
         super(BootTests, self).setUp()
-        self.boot = wry.device.AMTBoot(self.client, self.options)
+        self.boot = wry.AMTBoot(self.client, self.options)
 
     @mock.patch.multiple(pywsman.Client,
         get=data.client_get,

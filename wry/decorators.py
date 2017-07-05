@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -17,7 +19,6 @@ from wry.config import CONNECT_RETRIES
 from wry.exceptions import AMTConnectFailure
 
 
-
 def retry(infunc):
     @wraps(infunc)
     def newfunc(*args, **kwargs):
@@ -25,6 +26,7 @@ def retry(infunc):
             try:
                 return infunc(*args, **kwargs)
             except AMTConnectFailure:
+                print("Failed, retrying")
                 sleep(.1)
             except:
                 break
@@ -39,3 +41,16 @@ def add_client_options(infunc):
         return infunc(*args, options=options, **kwargs)
     return newfunc
 
+# class lazy_property(object):
+#     '''A property that is evaluated on first access, and never again thereafter.'''
+# 
+#     def __init__(self, getter):
+#         self.getter = getter
+#         self.getter_name = getter.__name__
+# 
+#     def __get__(self, obj, _):
+#         if obj is None:
+#             return None
+#         value = self.getter(obj)
+#         setattr(obj, self.getter_name, value)
+#         return value

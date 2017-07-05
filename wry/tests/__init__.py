@@ -56,6 +56,32 @@ class PowerTests(WryTest):
                 data.power_state_change(2),
             )
 
+    @mock.patch('wry.decorators.CONNECT_RETRIES', 0)
+    def test_kvm_disable(self):
+        try:
+            self.kvm.enabled = False
+        except wry.exceptions.AMTConnectFailure:
+            pass
+        with open(self.dumpfile_name, 'r') as output:
+            self.assertRegexpMatches(
+                output.read(),
+                data.kvm_enable(3),
+            )
+
+    #@mock.patch('wry.decorators.CONNECT_RETRIES', 0)
+    #def test_kvm_ports_5900(self):
+    #    pass
+
+    #def test_kvm_ports_16994(self):
+    #    pass
+
+    #def test_kvm_ports_both(self):
+    #    pass
+
+    #def test_kvm_ports_none(self):
+    #    pass
+
+
 
 class KVMTests(WryTest):
     '''Tests for device power management/control.'''
@@ -73,7 +99,7 @@ class KVMTests(WryTest):
         with open(self.dumpfile_name, 'r') as output:
             self.assertRegexpMatches(
                 output.read(),
-                data.kvm_enable(),
+                data.kvm_enable(2),
             )
 
 

@@ -34,6 +34,7 @@ RESOURCE_METHODS = {
     'CIM_BootService': ['get', 'set_boot_config_role'],
     'CIM_KVMRedirectionSAP': ['get', 'put'],
     'IPS_KVMRedirectionSettingData': ['get', 'put'],
+    'IPS_OptInService': ['get', 'enumerate', 'pull', 'put'],
     'AMT_RedirectionService': ['get', 'put'],
     'AMT_TLSSettingData': ['get', 'put'],
     'AMT_BootCapabilities': ['get'],

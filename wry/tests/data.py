@@ -16,7 +16,7 @@ import pywsman
 
 
 def power_state_change(number):
-    return '''^<\?xml version="1\.0"\?>
+    return r'''^<\?xml version="1\.0"\?>
 <s:Envelope xmlns:s="http://www\.w3\.org/2003/05/soap-envelope" xmlns:wsa="http://schemas\.xmlsoap\.org/ws/2004/08/addressing" xmlns:wsman="http://schemas\.dmtf\.org/wbem/wsman/1/wsman\.xsd" xmlns:n1="http://schemas\.dmtf\.org/wbem/wscim/1/cim-schema/2/CIM_PowerManagementService">
   <s:Header>
     <wsa:Action s:mustUnderstand="true">http://schemas\.dmtf\.org/wbem/wscim/1/cim-schema/2/CIM_PowerManagementService/RequestPowerStateChange</wsa:Action>
@@ -47,8 +47,8 @@ def power_state_change(number):
 </s:Envelope>$''' % number
 
 
-def kvm_enable():
-    return '''^<\?xml version="1\.0"\?>
+def kvm_enable(state):
+    return r'''^<\?xml version="1\.0"\?>
 <s:Envelope xmlns:s="http://www\.w3\.org/2003/05/soap-envelope" xmlns:wsa="http://schemas\.xmlsoap\.org/ws/2004/08/addressing" xmlns:wsman="http://schemas\.dmtf\.org/wbem/wsman/1/wsman\.xsd" xmlns:n1="http://schemas\.dmtf\.org/wbem/wscim/1/cim-schema/2/CIM_KVMRedirectionSAP">
   <s:Header>
     <wsa:Action s:mustUnderstand="true">http://schemas\.dmtf\.org/wbem/wscim/1/cim-schema/2/CIM_KVMRedirectionSAP/RequestStateChange</wsa:Action>
@@ -61,10 +61,10 @@ def kvm_enable():
   </s:Header>
   <s:Body>
     <n1:RequestStateChange_INPUT>
-      <n1:RequestedState>2</n1:RequestedState>
+      <n1:RequestedState>%s</n1:RequestedState>
     </n1:RequestStateChange_INPUT>
   </s:Body>
-</s:Envelope>$'''
+</s:Envelope>$''' % state
 
 
 set_boot_config_role = r'''^<\?xml version="1\.0"\?>

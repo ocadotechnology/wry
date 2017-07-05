@@ -111,7 +111,6 @@ def _convert_values(input_dict):
                 value = unicode(value)
         output[key] = value
     return output
-        
 
 
 def _strip_namespace_prefixes(input_dict):
@@ -131,3 +130,33 @@ def _strip_namespace_prefixes(input_dict):
         value = _strip_namespace_prefixes(value) or value
         outdict[key] = value
     return outdict
+
+
+
+class RadioButtons(object):
+    def __init__(self, values):
+        self.values = values
+        self._selected_value = Ellipsis
+
+    def __repr__(self):
+        out = []
+        for value in self.values:
+            if value == self._selected_value:
+                out.append('<%r>' % value)
+            else:
+                out.append(value.__repr__())
+        return ' | '.join(out)
+
+    def __str__(self):
+        return self.__repr__()
+
+    @property
+    def selected(self):
+        return self._selected_value
+
+    @selected.setter
+    def selected(self, value):
+        if value in self.values:
+            self._selected_value = value
+        else:
+            raise TypeError('%r is an invalid value. Choose one of %r.' % (value, self.values))

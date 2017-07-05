@@ -58,7 +58,6 @@ class AMTBoot(DeviceCapability.DeviceCapability):
             selector=('InstanceID', instance_id, config_instance, ),
         )
         self._set_boot_config_role()
-        return response
 
     @property
     def config(self):

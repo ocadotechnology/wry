@@ -18,8 +18,10 @@ import pywsman
 import AMTBoot
 import AMTPower
 import AMTKVM
-from wry.config import RESOURCE_METHODS
+import AMTOptIn
+import AMTRedirection
 from wry.data_structures import WryDict
+import config
 
 '''
 Created on 4 Jul 2017
@@ -39,6 +41,8 @@ class AMTDevice(object):
         self.boot = AMTBoot.AMTBoot(self.client, self.options)
         self.power = AMTPower.AMTPower(self.client, self.options)
         self.kvm = AMTKVM.AMTKVM(self.client, self.options)
+        self.opt_in = AMTOptIn.AMTOptIn(self.client, self.options)
+        self.redirection = AMTRedirection.AMTRedirection(self.client, self.options)
 
     @property
     def debug(self):
@@ -84,7 +88,7 @@ class AMTDevice(object):
         '''
         output = WryDict()
         impossible = []
-        for name, methods in RESOURCE_METHODS.items():
+        for name, methods in config.RESOURCE_METHODS.items():
             try:
                 if 'get' in methods:
                     resource = self.get_resource(name)

@@ -89,11 +89,13 @@ class AMTDevice(object):
         output = WryDict()
         impossible = []
         for name, methods in config.RESOURCE_METHODS.items():
+            if name != 'IPS_OptInService':
+                continue
             try:
-                if 'get' in methods:
-                    resource = self.get_resource(name)
-                elif 'enumerate' in methods:
+                if 'enumerate' in methods:
                     resource = self.enumerate_resource(name)
+                elif 'get' in methods:
+                    resource = self.get_resource(name)
                 else:
                     raise exceptions.NoSupportedMethods('The resource %r does not define a supported method for this action.' % name)
             except exceptions.WSManFault:

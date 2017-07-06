@@ -18,13 +18,10 @@ Common functionalities for AMT Driver
 import logging
 import pywsman
 import xmltodict
-from ast import literal_eval
-from xml.etree import ElementTree
-from wry import data_structures
 from wry import exceptions
 from wry.decorators import retry, add_client_options
 from wry.config import RESOURCE_URIs, SCHEMAS
-from wry.data_structures import _strip_namespace_prefixes, WryDict
+from wry.data_structures import WryDict
 from collections import OrderedDict
 from collections import namedtuple
 
@@ -137,7 +134,7 @@ def put_resource(client, indict, options=None, uri=None, silent=False):
     Given a dict or  describing a wsman resource, post this resource to the client.
     :returns: data_structures.WryDict
     :param indict: A dictionary or dictionary-like object (eg.
-    common.RESOURCE_URIs.
+    config.RESOURCE_URIs.
     :param uri: If a mapping does not exist in common.RESOURCE_URIs, the resource URI can be specified manually here.
     :param mappings: A dictionary providing extra mappings between resource names and URIs.
     '''

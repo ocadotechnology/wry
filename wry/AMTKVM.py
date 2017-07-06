@@ -14,7 +14,6 @@
 
 import DeviceCapability
 import common
-import data_structures
 
 '''
 Created on 4 Jul 2017
@@ -38,7 +37,6 @@ class EnablementMap(object):
         self._enabled_values = []
 
     def __repr__(self):
-        out = []
         return 'EnablementMap(%s)' % ', '.join(
                 ['%s: %s' % (value.__repr__(), value in self.options) for value in self.values]
         )
@@ -84,13 +82,6 @@ class AMTKVM(DeviceCapability.DeviceCapability):
     '''Control over a device's KVM (VNC) functionality.'''
 
     def request_state_change(self, resource_name, requested_state):
-        input_dict = {
-            resource_name:
-                {'RequestStateChange_INPUT': {
-                    'RequestedState': requested_state,
-                },
-            }
-        }
         return common.invoke_method(
             service_name='CIM_KVMRedirectionSAP',
             method_name='RequestStateChange',

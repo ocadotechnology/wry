@@ -48,7 +48,7 @@ class AMTBoot(DeviceCapability.DeviceCapability):
         # enumerate, as it has intances... But for now...
         config_instance = str(boot_config['InstanceID'])
 
-        response = common.invoke_method(
+        common.invoke_method(
             service_name='CIM_BootConfigSetting',
             resource_name='CIM_BootSourceSetting',
             affected_item='Source',

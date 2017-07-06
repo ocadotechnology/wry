@@ -60,12 +60,12 @@ class AMTDevice(object):
         else:
             self.options.clear_dump_request()
 
-    def get_resource(self, resource_name, as_xmldoc=False):
+    def get_resource(self, resource_name, as_xmldoc = False):
         '''
         Get a native representaiton of a resource, by name. The resource URI will be
         sourced from config.RESOURCE_URIs
         '''
-        return common.get_resource(self.client, resource_name, options=self.options, as_xmldoc=as_xmldoc)
+        return common.get_resource(self.client, resource_name, options = self.options, as_xmldoc = as_xmldoc)
 
     def enumerate_resource(self, resource_name): # Add in all relevant kwargs...
         '''
@@ -74,13 +74,13 @@ class AMTDevice(object):
         '''
         return common.enumerate_resource(self.client, resource_name)
 
-    def put_resource(self, data, uri=None, silent=False):
+    def put_resource(self, data, uri = None, silent = False):
         '''
         Given a WryDict describing a resource, put this data to the client.
         '''
-        return common.put_resource(self.client, data, uri, options=self.options, silent=silent)
+        return common.put_resource(self.client, data, uri, options = self.options, silent = silent)
 
-    def dump(self, as_json=True):
+    def dump(self, as_json = True):
         '''
         Print all of the known information about the device.
 
@@ -89,8 +89,6 @@ class AMTDevice(object):
         output = WryDict()
         impossible = []
         for name, methods in config.RESOURCE_METHODS.items():
-            if name != 'IPS_OptInService':
-                continue
             try:
                 if 'enumerate' in methods:
                     resource = self.enumerate_resource(name)

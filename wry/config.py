@@ -12,6 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections import namedtuple
+
 
 CONNECT_RETRIES = 3 # Number of times to retry a WSMan connection
 
@@ -44,14 +46,17 @@ RESOURCE_METHODS = {
 }
 
 
-RESOURCE_URIs = {}
-for name in RESOURCE_METHODS.keys():
-    prefix = name.split('_')[0]
-    RESOURCE_URIs[name] = _URI_PREFIXES[prefix] + name
-
+#RESOURCE_URIS = {}
+#for name in RESOURCE_METHODS.keys():
+#    prefix = name.split('_')[0]
+#    RESOURCE_URIS[name] = _URI_PREFIXES[prefix] + name
+RESOURCE_URIS = {name: _URI_PREFIXES[name.split('_')[0]] + name for name in RESOURCE_METHODS.keys()}
 
 SCHEMAS = dict(
     addressing = 'http://schemas.xmlsoap.org/ws/2004/08/addressing',
     addressing_anonymous = 'http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous',
     wsman = 'http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd',
 )
+
+
+StateMap = namedtuple('StateMap', ['state', 'sub_state'])

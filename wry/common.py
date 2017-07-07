@@ -20,15 +20,12 @@ import pywsman
 import xmltodict
 from wry import exceptions
 from wry.decorators import retry, add_client_options
-from wry.config import RESOURCE_URIs, SCHEMAS
+from wry.config import RESOURCE_URIS, SCHEMAS
 from wry.data_structures import WryDict
 from collections import OrderedDict
-from collections import namedtuple
 
 
-StateMap = namedtuple('StateMap', ['state', 'sub_state'])
-
-_SOAP_ENVELOPE = 'http://www.w3.org/2003/05/soap-envelope'
+#_SOAP_ENVELOPE = 'http://www.w3.org/2003/05/soap-envelope'
 
 LOG = logging.getLogger(__name__)
 
@@ -38,7 +35,7 @@ AMT_PROTOCOL_PORT_MAP = {
 }
 
 
-def _validate(doc, silent=False):
+def _validate(doc, silent = False):
     if doc is None:
         raise exceptions.AMTConnectFailure
     if not silent:
@@ -61,91 +58,91 @@ def get_options_copy(options):
 
 @add_client_options
 @retry
-def wsman_get(client, resource_uri, options=None, silent=False):
+def wsman_get(client, resource_uri, options = None, silent = False):
     '''Get target server info'''
     doc = client.get(options, resource_uri)
-    return _validate(doc, silent=silent)
+    return _validate(doc, silent = silent)
 
 
 @add_client_options
 @retry
-def wsman_pull(client, resource_uri, options=None, wsman_filter=None, context=None, silent=False):
+def wsman_pull(client, resource_uri, options = None, wsman_filter = None, context = None, silent = False):
     '''Get target server info'''
     doc = client.pull(options, wsman_filter, resource_uri, context)
-    return _validate(doc, silent=silent)
+    return _validate(doc, silent = silent)
 
 
 @add_client_options
 @retry
-def wsman_enumerate(client, resource_uri, options=None, wsman_filter=None, silent=False):
+def wsman_enumerate(client, resource_uri, options = None, wsman_filter = None, silent = False):
     '''Get target server info'''
     doc = client.enumerate(options, wsman_filter, resource_uri)
-    return _validate(doc, silent=silent)
+    return _validate(doc, silent = silent)
 
 
 @add_client_options
 @retry
-def wsman_put(client, resource_uri, data, options=None, silent=False):
+def wsman_put(client, resource_uri, data, options = None, silent = False):
     '''Invoke method on target server
     :param silent: Ignore WSMan errors, and return the document anyway. Does not
     ignore the endpoint being down.
     '''
     doc = client.put(options, resource_uri, str(data), len(data))
-    return _validate(doc, silent=silent)
+    return _validate(doc, silent = silent)
 
 @add_client_options
 @retry
-def wsman_invoke(client, resource_uri, method, data=None, options=None, silent=False):
+def wsman_invoke(client, resource_uri, method, data = None, options = None, silent = False):
     '''Invoke method on target server.'''
     doc = client.invoke(options, resource_uri, str(method), pywsman.create_doc_from_string(str(data)))
-    return _validate(doc, silent=silent)
+    return _validate(doc, silent = silent)
 
 
-def get_resource(client, resource_name, options=None, as_xmldoc=False):
+def get_resource(client, resource_name, options = None, as_xmldoc = False):
     '''
     '''
-    uri = RESOURCE_URIs[resource_name]
-    doc = wsman_get(client, uri, options=options)
+    uri = RESOURCE_URIS[resource_name]
+    doc = wsman_get(client, uri, options = options)
     if as_xmldoc:
         return doc
     return WryDict(doc)
 
 
-def enumerate_resource(client, resource_name, wsman_filter=None, options=None):
+def enumerate_resource(client, resource_name, wsman_filter = None, options = None):
     '''
     class.
     '''
-    uri = RESOURCE_URIs[resource_name]
-    doc = wsman_enumerate(client, uri, options=options) # Add in relevant kwargs... filter?
+    uri = RESOURCE_URIS[resource_name]
+    doc = wsman_enumerate(client, uri, options = options) # Add in relevant kwargs... filter?
     doc = WryDict(doc)
     context = doc['EnumerateResponse']['EnumerationContext']
     ended = False
     output = {resource_name: []}
     while ended is False:
-        doc = wsman_pull(client, uri, context=str(context), options=options)
+        doc = wsman_pull(client, uri, context = str(context), options = options)
         response = WryDict(doc)['PullResponse']
         ended = response.pop('EndOfSequence', False)
         output[resource_name].append(response['Items'][resource_name])
     return output
 
 
-def put_resource(client, indict, options=None, uri=None, silent=False):
+def put_resource(client, indict, options = None, uri = None, silent = False):
     '''
     Given a dict or  describing a wsman resource, post this resource to the client.
     :returns: data_structures.WryDict
     :param indict: A dictionary or dictionary-like object (eg.
-    config.RESOURCE_URIs.
-    :param uri: If a mapping does not exist in common.RESOURCE_URIs, the resource URI can be specified manually here.
+    config.RESOURCE_URIS.
+    :param uri: If a mapping does not exist in common.RESOURCE_URIS, the resource URI can be specified manually here.
     :param mappings: A dictionary providing extra mappings between resource names and URIs.
     '''
     if not uri:
-        uri = RESOURCE_URIs[indict.keys()[0]] # Possible to support multiple simply here?
+        uri = RESOURCE_URIS[indict.keys()[0]] # Possible to support multiple simply here?
     data = indict.as_xml()
-    doc = wsman_put(client, uri, data, options=options, silent=silent)
+    doc = wsman_put(client, uri, data, options = options, silent = silent)
     return WryDict(doc)
 
 
-def invoke_method(service_name, method_name, options, client, resource_name=None, affected_item=None, selector=None, args_before=(), args_after=(), anonymous=False):
+def invoke_method(service_name, method_name, options, client, resource_name = None, affected_item = None, selector = None, args_before = (), args_after = (), anonymous = False):
     '''
     selector should be a dictionary in the form:
     {selector_name: {element_name: element_value}} ???
@@ -156,10 +153,10 @@ def invoke_method(service_name, method_name, options, client, resource_name=None
     else:
         address_schema = 'addressing'
     options = get_options_copy(options)
-    service_uri = RESOURCE_URIs[service_name]
+    service_uri = RESOURCE_URIS[service_name]
 
 
-    def add_arguments(data_dict, argument_pairs=()):
+    def add_arguments(data_dict, argument_pairs = ()):
         for arg_name, arg_value in argument_pairs:
             data_dict[method_name + '_INPUT'][arg_name] = {
                 '#text': arg_value,
@@ -178,7 +175,7 @@ def invoke_method(service_name, method_name, options, client, resource_name=None
                 }),
                 ('ReferenceParameters', {
                     'ResourceURI': {
-                        '#text': RESOURCE_URIs[resource_name],
+                        '#text': RESOURCE_URIS[resource_name],
                         '@xmlns': SCHEMAS['wsman'],
                     },
                     '@xmlns': SCHEMAS['addressing'],
@@ -198,8 +195,8 @@ def invoke_method(service_name, method_name, options, client, resource_name=None
             assert len(selector) == 3
             options.add_selector(selector[0], selector[-1])
 
-    xml = xmltodict.unparse(data, full_document=False, pretty=True)
-    doc = wsman_invoke(client, service_uri, method_name, xml, options=options)
+    xml = xmltodict.unparse(data, full_document = False, pretty = True)
+    doc = wsman_invoke(client, service_uri, method_name, xml, options = options)
     returned = WryDict(doc)
     return_value = returned[method_name + '_OUTPUT']['ReturnValue']
     if return_value != 0:

@@ -22,9 +22,9 @@ Created on 4 Jul 2017
 '''
 
 AMT_KVM_ENABLEMENT_MAP = {
-    2: common.StateMap(True, 'Enabled'),
-    6: common.StateMap(True, 'Enabled But Offline'),
-    3: common.StateMap(False, 'Disabled'),
+    2: config.StateMap(True, 'Enabled'),
+    6: config.StateMap(True, 'Enabled But Offline'),
+    3: config.StateMap(False, 'Disabled'),
 }
 
 class EnablementMap(object):
@@ -83,11 +83,11 @@ class AMTKVM(DeviceCapability.DeviceCapability):
 
     def request_state_change(self, resource_name, requested_state):
         return common.invoke_method(
-            service_name='CIM_KVMRedirectionSAP',
-            method_name='RequestStateChange',
-            options=self.options,
-            client=self.client,
-            args_before=[('RequestedState', str(requested_state)), ],
+            service_name = 'CIM_KVMRedirectionSAP',
+            method_name = 'RequestStateChange',
+            options = self.options,
+            client = self.client,
+            args_before = [('RequestedState', str(requested_state)), ],
         )
 
     @property
@@ -122,7 +122,7 @@ class AMTKVM(DeviceCapability.DeviceCapability):
         def isub(values):
             self.enabled_ports = set(self.enabled_ports.values) - set(values)
 
-        ports = EnablementMap(5900, 16994, 16995, iadd=iadd, isub=isub)
+        ports = EnablementMap(5900, 16994, 16995, iadd = iadd, isub = isub)
 
         if self.get('IPS_KVMRedirectionSettingData', 'Is5900PortEnabled'):
             ports.toggle(5900)

@@ -14,6 +14,7 @@
 
 import DeviceCapability
 import common
+import config
 
 '''
 Created on 4 Jul 2017
@@ -23,23 +24,23 @@ Created on 4 Jul 2017
 
 AMT_POWER_STATE_MAP = [
     None,
-    common.StateMap('other', None),
-    common.StateMap('on', None),
-    common.StateMap('sleep', 'Light'),
-    common.StateMap('sleep', 'Deep'),
-    common.StateMap('cycle', '(Off - Soft)'),
-    common.StateMap('off', 'hard'),
-    common.StateMap('hibernate', '(Off - Soft)'),
-    common.StateMap('off', 'soft'),
-    common.StateMap('cycle', '(Off - Hard)'),
-    common.StateMap('Master Bus Reset', None),
-    common.StateMap('Diagnostic Interrupt (NMI)', None),
-    common.StateMap('off', 'Soft Graceful'),
-    common.StateMap('off', 'Hard Graceful'),
-    common.StateMap('Master Bus Reset', 'Graceful'),
-    common.StateMap('cycle', '(Off - Soft Graceful)'),
-    common.StateMap('cycle', '(Off - Hard Graceful)'),
-    common.StateMap('Diagnostic Interrupt (INIT)', None),
+    config.StateMap('other', None),
+    config.StateMap('on', None),
+    config.StateMap('sleep', 'Light'),
+    config.StateMap('sleep', 'Deep'),
+    config.StateMap('cycle', '(Off - Soft)'),
+    config.StateMap('off', 'hard'),
+    config.StateMap('hibernate', '(Off - Soft)'),
+    config.StateMap('off', 'soft'),
+    config.StateMap('cycle', '(Off - Hard)'),
+    config.StateMap('Master Bus Reset', None),
+    config.StateMap('Diagnostic Interrupt (NMI)', None),
+    config.StateMap('off', 'Soft Graceful'),
+    config.StateMap('off', 'Hard Graceful'),
+    config.StateMap('Master Bus Reset', 'Graceful'),
+    config.StateMap('cycle', '(Off - Soft Graceful)'),
+    config.StateMap('cycle', '(Off - Hard Graceful)'),
+    config.StateMap('Diagnostic Interrupt (INIT)', None),
 ]
 
 '''
@@ -59,15 +60,15 @@ class AMTPower(DeviceCapability.DeviceCapability):
 
     def request_power_state_change(self, power_state):
         return common.invoke_method(
-            service_name='CIM_PowerManagementService',
-            resource_name='CIM_ComputerSystem',
-            affected_item='ManagedElement',
-            method_name='RequestPowerStateChange',
-            options=self.options,
-            client=self.client,
-            selector=('Name', 'ManagedSystem', 'Intel(r) AMT Power Management Service', ),
-            args_before=[('PowerState', str(power_state)), ],
-            anonymous=True,
+            service_name = 'CIM_PowerManagementService',
+            resource_name = 'CIM_ComputerSystem',
+            affected_item = 'ManagedElement',
+            method_name = 'RequestPowerStateChange',
+            options = self.options,
+            client = self.client,
+            selector = ('Name', 'ManagedSystem', 'Intel(r) AMT Power Management Service',),
+            args_before = [('PowerState', str(power_state)), ],
+            anonymous = True,
         )
 
     @property
@@ -78,7 +79,7 @@ class AMTPower(DeviceCapability.DeviceCapability):
         A :class:`wry.device.StateMap` as described in
         :data:`wry.device.AMT_POWER_STATE_MAP`.
         '''
-        response = self.get(setting='PowerState')
+        response = self.get(setting = 'PowerState')
         return AMT_POWER_STATE_MAP[response]
 
     def turn_on(self):

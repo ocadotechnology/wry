@@ -20,7 +20,7 @@ import xmltodict
 import json
 from ast import literal_eval
 from collections import OrderedDict# as NormalOrderedDict
-from wry.config import RESOURCE_URIs
+from wry.config import RESOURCE_URIS
 
 
 class WryDict(OrderedDict):
@@ -51,7 +51,7 @@ class WryDict(OrderedDict):
         '''Add an XML namespace attribute(s) to the dictionary value(s).'''
         output = OrderedDict()
         for resource_name, resource in self.iteritems():
-            uri = RESOURCE_URIs.get(resource_name, None)
+            uri = RESOURCE_URIS.get(resource_name, None)
             output[resource_name] = resource.copy()
             output[resource_name][u'@xmlns'] = uri
         return output

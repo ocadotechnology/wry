@@ -12,16 +12,50 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import DeviceCapability
-import common
+import wsman
+
 '''
 Created on 4 Jul 2017
 
 @author: adrian
 '''
 
-class AMTBoot(DeviceCapability.DeviceCapability):
+
+BOOT_DEVICES = {
+    'pxe': 'Intel(r) AMT: Force PXE Boot',
+    'hd': 'Intel(r) AMT: Force Hard-drive Boot',
+    'cd': 'Intel(r) AMT: Force CD/DVD Boot',
+}
+
+
+class AMTBoot:
     '''Control how the machine will boot next time.'''
+
+    def __init__(self, device):
+        '''
+        Create the wsmanResource classes we need
+        '''
+        self.bootSourceSetting = wsman.wsmanResource(
+            target = device.target,
+            is_ssl = device.is_ssl,
+            username = device.username,
+            password = device.password,
+            resource = 'CIM_BootSourceSetting'
+        )
+        self.bootService = wsman.wsmanResource(
+            target = device.target,
+            is_ssl = device.is_ssl,
+            username = device.username,
+            password = device.password,
+            resource = 'CIM_BootService'
+        )
+        self.bootSettingData = wsman.wsmanResource(
+            target = device.target,
+            is_ssl = device.is_ssl,
+            username = device.username,
+            password = device.password,
+            resource = 'AMT_BootSettingData'
+        )
 
     @property
     def supported_media(self):
@@ -49,13 +83,13 @@ class AMTBoot(DeviceCapability.DeviceCapability):
         config_instance = str(boot_config['InstanceID'])
 
         common.invoke_method(
-            service_name='CIM_BootConfigSetting',
-            resource_name='CIM_BootSourceSetting',
-            affected_item='Source',
-            method_name='ChangeBootOrder',
-            options=self.options,
-            client=self.client,
-            selector=('InstanceID', instance_id, config_instance, ),
+            service_name = 'CIM_BootConfigSetting',
+            resource_name = 'CIM_BootSourceSetting',
+            affected_item = 'Source',
+            method_name = 'ChangeBootOrder',
+            options = self.options,
+            client = self.client,
+            selector = ('InstanceID', instance_id, config_instance,),
         )
         self._set_boot_config_role()
 
@@ -64,20 +98,12 @@ class AMTBoot(DeviceCapability.DeviceCapability):
         '''Get configuration for the machine's next boot.'''
         return self.get('AMT_BootSettingData')
 
-    def _set_boot_config_role(self, enabled_state=True):
+    def _set_boot_config_role(self, enabled_state = True):
         if enabled_state == True:
             role = '1'
         elif enabled_state == False:
             role = '32768'
-        svc = self.get('CIM_BootService')
-        assert svc['ElementName'] == 'Intel(r) AMT Boot Service'
-        return common.invoke_method(
-            service_name='CIM_BootService',
-            resource_name='CIM_BootConfigSetting',
-            affected_item='BootConfigSetting',
-            method_name='SetBootConfigRole',
-            options=self.options,
-            client=self.client,
-            selector=('InstanceID', 'Intel(r) AMT: Boot Configuration 0', ),
-            args_after=[('Role', role)],
+        self.bootService.invoke(
+            'set_boot_config_role',
+            role = role
         )

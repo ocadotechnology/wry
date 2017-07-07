@@ -12,9 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import DeviceCapability
-import common
-
 '''
 Created on 4 Jul 2017
 

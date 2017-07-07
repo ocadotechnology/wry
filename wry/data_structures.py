@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+from pprint import pprint, pformat
 
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -19,56 +20,81 @@ Wry data structures and helpers.
 import xmltodict
 import json
 from ast import literal_eval
-from collections import OrderedDict# as NormalOrderedDict
-from wry.config import RESOURCE_URIS
+from collections import OrderedDict
+import wsman
 
 
 class WryDict(OrderedDict):
     '''An OrderedDict with the ability to be generated from wman-returned XML'''
 
     def __init__(self, *args, **kwargs):
-        self.from_xml = False
-        try:
-            super(WryDict, self).__init__(*args, **kwargs)
-        except (TypeError, ValueError) as original_exception:
-            self.source_doc = args[0]
-            try:
-                data = self._from_xmldoc(self.source_doc)
-                super(WryDict, self).__init__(**data)
-            except: # Invalid XmlDoc or XML string...
-                raise original_exception
-            else:
-                self.from_xml = True
+        self._from_xml = False
+        super(WryDict, self).__init__(*args, **kwargs)
 
-    def as_xml(self):
-        '''TODO: Make this clearer and better and more integrated an stuff.'''
-        output = self.with_namespaces()
-        output = _convert_values(output)
-        _xml = xmltodict.unparse(output, full_document=False, pretty=False)
-        return _xml
-
-    def with_namespaces(self):
-        '''Add an XML namespace attribute(s) to the dictionary value(s).'''
-        output = OrderedDict()
-        for resource_name, resource in self.iteritems():
-            uri = RESOURCE_URIS.get(resource_name, None)
-            output[resource_name] = resource.copy()
-            output[resource_name][u'@xmlns'] = uri
-        return output
+    def dump(self, depth = ''):
+        return json.dumps(self, indent = 2)
 
     @property
-    def error(self):
-        if self.source_doc.is_fault():
-            return self.source_doc.fault().reason()
-        else:
-            return None
+    def to_xml(self):
+        '''
+        Return the XML representation of this WryDict
+        '''
+        def _convert_values(input_dict):
+            '''
+            Convert values from Python to XML friendly
+            '''
+            # TODO: add an ns_uri kwarg so we can specify a namespace if one is not here...
+            output = self.__class__()
+            for key, value in input_dict.iteritems():
+                try:
+                    value = _convert_values(value)
+                except AttributeError:
+                    if value is None:
+                        continue # Omit this tag - fixes issues with passwords, could possibly cause them elsewhere?
+                    if value in (True, False):
+                        value = unicode(value).lower()
+                    else:
+                        value = unicode(value)
+                output[key] = value
+            return output
+        def _with_namespaces():
+            '''
+            Add an XML namespace attribute(s) to the dictionary value(s).
+            '''
+            output = self.__class__()
+            for resource_name, resource in self.iteritems():
+                uri = wsman.RESOURCE_URIS.get(resource_name, None)
+                output[resource_name] = resource.copy()
+                output[resource_name][u'@xmlns'] = uri
+            return output
+        #TODO: Make this clearer and better and more integrated an stuff.
+        output = _convert_values(_with_namespaces())
+        _xml = xmltodict.unparse(output, full_document = False, pretty = False)
+        return _xml
 
-    def _from_xmldoc(self, doc):
-        mydict = xmltodict.parse(doc.root().string(), process_namespaces=False)
-        # .root() as opposed to .body() because they both seem to return the same thing:
+    @classmethod
+    def from_xml(cls, xmlstr):
+        '''
+        Construct a WryDict from an XML string
+        '''
+        def _strip_namespace_prefixes(input_dict):
+            '''
+            Given a dict-like object, perhaps containing dict-like objects to an arbitary
+            depth, return a copy with XML namespace prefixes stripped from each
+            dict[like-object]'s keys.
+            '''
+            if not isinstance(input_dict, dict):
+                return None
+            outdict = cls()
+            for key, value in input_dict.iteritems():
+                key = key.split(':')[-1]
+                value = _strip_namespace_prefixes(value) or value
+                outdict[key] = value
+            return outdict
+        mydict = xmltodict.parse(xmlstr, process_namespaces = False)
         mydict = _strip_namespace_prefixes(mydict)
         body = mydict[u'Envelope'][u'Body']
-        outdict = WryDict()
+        outdict = cls()
         for key, value in body.values()[0].iteritems():
             if value in (u'true', u'false'):
                 value = value.capitalize()
@@ -77,11 +103,20 @@ class WryDict(OrderedDict):
             except (SyntaxError, ValueError):
                 pass
             outdict[key] = value
-        return {body.keys()[0]: outdict}
+        self = cls({body.keys()[0]: outdict})
+        self._from_xml = True
+        return self
+
+    @property
+    def error(self):
+        if self.source_doc.is_fault():
+            return self.source_doc.fault().reason()
+        else:
+            return None
 
     def __repr__(self):
         items = ''
-        if self.from_xml:
+        if self._from_xml:
             bookends = ['<{', '}>']
         else:
             bookends = ['-{', '}-']
@@ -89,74 +124,34 @@ class WryDict(OrderedDict):
             items += '%r: %r, ' % (key, value)
         return bookends[0] + items + bookends[-1]
 
-    def as_json(self, indent=4):
-        return json.dumps(self, indent=indent)
+    def as_json(self, indent = 4):
+        return json.dumps(self, indent = indent)
 
 
-def _convert_values(input_dict):
-    '''
-    TODO: add an ns_uri kwarg so we can specify a namespace if one is not
-    here...
-    '''
-    output = OrderedDict()
-    for key, value in input_dict.iteritems():
-        try:
-            value = _convert_values(value)
-        except AttributeError:
-            if value is None:
-                continue # Omit this tag - fixes issues with passwords, could possibly cause them elsewhere?
-            if value in (True, False):
-                value = unicode(value).lower()
-            else:
-                value = unicode(value)
-        output[key] = value
-    return output
-
-
-def _strip_namespace_prefixes(input_dict):
-    '''
-    Given a dict-like object, perhaps containing dict-like objects to an arbitary
-    depth, return a copy with XML namespace prefixes stripped from each
-    dict[like-object]'s keys.
-    '''
-    try:
-        # Trigger an AttributeError if the input is not dict-like:
-        outdict = input_dict.copy()
-        outdict.clear()
-    except AttributeError:
-        return None
-    for key, value in input_dict.iteritems():
-        key = key.split(':')[-1]
-        value = _strip_namespace_prefixes(value) or value
-        outdict[key] = value
-    return outdict
-
-
-
-class RadioButtons(object):
-    def __init__(self, values):
-        self.values = values
-        self._selected_value = Ellipsis
-
-    def __repr__(self):
-        out = []
-        for value in self.values:
-            if value == self._selected_value:
-                out.append('<%r>' % value)
-            else:
-                out.append(value.__repr__())
-        return ' | '.join(out)
-
-    def __str__(self):
-        return self.__repr__()
-
-    @property
-    def selected(self):
-        return self._selected_value
-
-    @selected.setter
-    def selected(self, value):
-        if value in self.values:
-            self._selected_value = value
-        else:
-            raise TypeError('%r is an invalid value. Choose one of %r.' % (value, self.values))
+#class RadioButtons(object):
+#    def __init__(self, values):
+#        self.values = values
+#        self._selected_value = Ellipsis
+#
+#    def __repr__(self):
+#        out = []
+#        for value in self.values:
+#            if value == self._selected_value:
+#                out.append('<%r>' % value)
+#            else:
+#                out.append(value.__repr__())
+#        return ' | '.join(out)
+#
+#    def __str__(self):
+#        return self.__repr__()
+#
+#    @property
+#    def selected(self):
+#        return self._selected_value
+#
+#    @selected.setter
+#    def selected(self, value):
+#        if value in self.values:
+#            self._selected_value = value
+#        else:
+#            raise TypeError('%r is an invalid value. Choose one of %r.' % (value, self.values))

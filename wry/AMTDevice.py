@@ -12,16 +12,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import common
-import exceptions
-import pywsman
-import AMTBoot
+#import AMTBoot
 import AMTPower
-import AMTKVM
-import AMTOptIn
-import AMTRedirection
-from wry.data_structures import WryDict
-import config
+#import AMTKVM
+#import AMTOptIn
+#import AMTRedirection
+import wsman
+import data_structures
 
 '''
 Created on 4 Jul 2017
@@ -32,18 +29,62 @@ Created on 4 Jul 2017
 class AMTDevice(object):
     '''A wrapper class which packages AMT functionality into an accessible, device-centric format.'''
 
-    def __init__(self, location, protocol, username, password):
-        port = common.AMT_PROTOCOL_PORT_MAP[protocol]
-        path = '/wsman'
-        self.client = pywsman.Client(location, port, path, protocol, username, password)
-        self.options = pywsman.ClientOptions()
+    def __init__(self, target = None, is_ssl = True, username = None, password = None):
+        '''
+        Create the separate resource classes
 
-        self.boot = AMTBoot.AMTBoot(self.client, self.options)
-        self.power = AMTPower.AMTPower(self.client, self.options)
-        self.kvm = AMTKVM.AMTKVM(self.client, self.options)
-        self.opt_in = AMTOptIn.AMTOptIn(self.client, self.options)
-        self.redirection = AMTRedirection.AMTRedirection(self.client, self.options)
+        @param target: the hostname or IP address of the wsman service
+        @param is_ssl: should we communicate using SSL?
+        @param username: the username to log in with
+        @param password: the password to log in with
+        '''
+        # Stash the settings everyone will need
+        self.target = target
+        self.is_ssl = is_ssl
+        self.username = username
+        self.password = password
+        # Now create the resource classes
+#        self.boot = AMTBoot.AMTBoot(self)
+        self.power = AMTPower.AMTPower(self)
+#        self.kvm = AMTKVM.AMTKVM(self)
+#        self.opt_in = AMTOptIn.AMTOptIn(self)
+#        self.redirection = AMTRedirection.AMTRedirection(self)
 
+    def dump(self, as_json = True):
+        '''
+        Print all of the known information about the device.
+
+        :returns: WryDict or json.
+        '''
+        output = data_structures.WryDict()
+        impossible = []
+        for name, methods in wsman.RESOURCE_METHODS.items():
+            try:
+                res = wsman.wsmanResource(
+                    target = self.target,
+                    is_ssl = self.is_ssl,
+                    username = self.username,
+                    password = self.password,
+                    resource = name
+                )
+                methods = methods.keys()
+                if 'enumerate' in methods:
+                    resource = res.enumerate()
+                elif 'get' in methods:
+                    resource = res.get()
+                else:
+                    raise NotImplementedError('The resource %r does not define a supported method for this action.' % name)
+            except:
+                impossible.append(name)
+            else:
+                output.update(resource)
+        messages = ['# Could not dump %s' % name for name in impossible]
+        if as_json:
+            return '\n'.join(messages) + '\n' + output.as_json()
+        print '\n'.join(messages)
+        return output
+
+"""
     @property
     def debug(self):
         '''
@@ -80,32 +121,6 @@ class AMTDevice(object):
         '''
         return common.put_resource(self.client, data, uri, options = self.options, silent = silent)
 
-    def dump(self, as_json = True):
-        '''
-        Print all of the known information about the device.
-
-        :returns: WryDict or json.
-        '''
-        output = WryDict()
-        impossible = []
-        for name, methods in config.RESOURCE_METHODS.items():
-            try:
-                if 'enumerate' in methods:
-                    resource = self.enumerate_resource(name)
-                elif 'get' in methods:
-                    resource = self.get_resource(name)
-                else:
-                    raise exceptions.NoSupportedMethods('The resource %r does not define a supported method for this action.' % name)
-            except exceptions.WSManFault:
-                impossible.append(name)
-            else:
-                output.update(resource)
-        messages = ['# Could not dump %s' % name for name in impossible]
-        if as_json:
-            return '\n'.join(messages) + '\n' + output.as_json()
-        else:
-            print '\n'.join(messages)
-            return output
-
 #    def load(self, input_dict):
 #        return common.load_from_dict(client, input_dict)
+"""

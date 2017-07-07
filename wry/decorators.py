@@ -14,40 +14,32 @@
 
 from functools import wraps
 from time import sleep
-import pywsman
-from wry.config import CONNECT_RETRIES
-from wry.exceptions import AMTConnectFailure
+import requests
+import wsman
 
 
 def retry(infunc):
     @wraps(infunc)
     def newfunc(*args, **kwargs):
-        for _ in range(CONNECT_RETRIES + 1):
+        for _ in range(wsman.CONNECT_RETRIES + 1):
             try:
                 return infunc(*args, **kwargs)
-            except AMTConnectFailure:
+            except requests.exceptions.ConnectTimeout:
                 print("Failed, retrying")
                 sleep(.1)
             except:
                 break
         raise
     return newfunc
- 
 
-def add_client_options(infunc):
-    @wraps(infunc)
-    def newfunc(*args, **kwargs):
-        options = kwargs.pop('options', None) or pywsman.ClientOptions()
-        return infunc(*args, options=options, **kwargs)
-    return newfunc
 
 # class lazy_property(object):
 #     '''A property that is evaluated on first access, and never again thereafter.'''
-# 
+#
 #     def __init__(self, getter):
 #         self.getter = getter
 #         self.getter_name = getter.__name__
-# 
+#
 #     def __get__(self, obj, _):
 #         if obj is None:
 #             return None

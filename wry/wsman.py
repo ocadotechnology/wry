@@ -14,7 +14,8 @@
 
 import uuid
 import requests
-import xmltodict
+import data_structures
+import decorators
 
 '''
 Created on 6 Jul 2017
@@ -25,6 +26,9 @@ I'm afraid we just string-bash the XML into submission here.
 
 @author: adrian
 '''
+
+
+CONNECT_RETRIES = 3 # Number of times to retry a WSMan connection
 
 
 _NAMESPACES = {
@@ -46,7 +50,7 @@ RESOURCE_METHODS = {
     },
     'CIM_PowerManagementService': {
         'get': '',
-        'request_power_state_change': '''
+        'RequestPowerStateChange': '''
         <n1:RequestPowerStateChange_INPUT>
             <n1:PowerState>%%(power_state)d</n1:PowerState>
             <n1:ManagedElement>
@@ -54,7 +58,7 @@ RESOURCE_METHODS = {
                 <wsa:ReferenceParameters>
                     <wsman:ResourceURI>http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_ComputerSystem</wsman:ResourceURI>
                     <wsman:SelectorSet>
-                        <wsman:Selector wsman:Name="Name">ManagedSystem</wsman:Selector>
+                        <wsman:Selector Name="Name">ManagedSystem</wsman:Selector>
                     </wsman:SelectorSet>
                 </wsa:ReferenceParameters>
             </n1:ManagedElement>
@@ -66,18 +70,39 @@ RESOURCE_METHODS = {
     },
     'CIM_BootConfigSetting': {
         'get': '',
-        'change_boot_order': '''
-''',
+        'ChangeBootOrder': '''
+        <n1:ChangeBootOrder_INPUT>
+            <n1:Source>
+                <wsa:Address>%(addressing_anonymous)s</wsa:Address>
+                <wsa:ReferenceParameters>
+                    <wsman:ResourceURI>http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_BootSourceSetting</wsman:ResourceURI>
+                    <wsman:SelectorSet>
+                        <wsman:Selector Name="InstanceID">%%(boot_device)s</wsman:Selector>
+                    </wsman:SelectorSet>
+                </wsa:ReferenceParameters>
+            </n1:Source>
+        </n1:ChangeBootOrder_INPUT>
+''' % _NAMESPACES,
     },
     'CIM_BootSourceSetting': {
-        'enumerate': '''
-''',
-        'pull': '''
-''',
+        'enumerate': '',
+        'pull': '',
     },
     'CIM_BootService': {
         'get': '',
-        'set_boot_config_role': '''
+        'SetBootConfigRole': '''
+        <n1:SetBootConfigRole_INPUT>
+            <n1:BootConfigSetting>
+                <wsa:Address>http://schemas.xmlsoap.org/ws/2004/08/addressing</wsa:Address>
+                <wsa:ReferenceParameters>
+                     <wsman:ResourceURI>http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_BootConfigSetting</wsman:ResourceURI>
+                     <wsman:SelectorSet>
+                          <wsman:Selector Name="InstanceID">Intel(r) AMT: Boot Configuration 0</wsman:Selector>
+                     </wsman:SelectorSet>
+                </wsa:ReferenceParameters>
+            </n1:BootConfigSetting>
+            <n1:Role>%(role)s</n1:Role>
+        </n1:SetBootConfigRole_INPUT>
 ''',
     },
     'CIM_KVMRedirectionSAP': {
@@ -92,10 +117,8 @@ RESOURCE_METHODS = {
     },
     'IPS_OptInService': {
         'get': '',
-        'enumerate': '''
-''',
-        'pull': '''
-''',
+        'enumerate': '',
+        'pull': '',
         'put': '''
 ''',
     },
@@ -130,9 +153,6 @@ RESOURCE_METHODS = {
 }
 
 
-CONNECT_RETRIES = 3 # Number of times to retry a WSMan connection
-
-
 RESOURCE_URIS = {name:_NAMESPACES[name.split('_')[0]] + name for name in RESOURCE_METHODS.keys()}
 RESOURCE_URIS.update(_NAMESPACES)
 
@@ -143,6 +163,7 @@ ACTIONS_URIS = {
     'delete':               'http://schemas.xmlsoap.org/ws/2004/09/transfer/Delete',
     'create':               'http://schemas.xmlsoap.org/ws/2004/09/transfer/Create',
     'enumerate':            'http://schemas.xmlsoap.org/ws/2004/09/enumeration/Enumerate',
+    'pull':                 'http://schemas.xmlsoap.org/ws/2004/09/enumeration/Pull',
 }
 
 
@@ -151,7 +172,6 @@ ACTIONS_URIS = {
 # uri
 # actionUri
 # resourceUri
-# setting (May be blank)
 # uuid
 # extraHeader
 # body
@@ -160,7 +180,7 @@ WS_ENVELOPE = r'''<?xml version="1.0" encoding="UTF-8"?>
 <s:Envelope xmlns:s="%(soap)s"
             xmlns:wsa="%(addressing)s"
             xmlns:wsman="%(wsman)s"
-            xmlns:action="%%(resourceUri)s"
+            xmlns:n1="%%(resourceUri)s"
             >
     <s:Header>
         <wsa:Action s:mustUnderstand="true">%%(actionUri)s</wsa:Action>
@@ -177,20 +197,74 @@ WS_ENVELOPE = r'''<?xml version="1.0" encoding="UTF-8"?>
     </s:Body>
 </s:Envelope>''' % _NAMESPACES
 
+WS_ENUM_ENVELOPE = r'''<?xml version="1.0" encoding="UTF-8"?>
+<s:Envelope xmlns:s="%(soap)s"
+            xmlns:wsa="%(addressing)s"
+            xmlns:wsman="%(wsman)s"
+            xmlns:wsen="http://schemas.xmlsoap.org/ws/2004/09/enumeration"
+            >
+    <s:Header>
+        <wsa:Action s:mustUnderstand="true">%%(actionUri)s</wsa:Action>
+        <wsa:To s:mustUnderstand="true">%%(uri)s</wsa:To>
+        <wsman:ResourceURI s:mustUnderstand="true">%%(resourceUri)s</wsman:ResourceURI>
+        <wsa:MessageID s:mustUnderstand="true">uuid:%%(uuid)s</wsa:MessageID>
+        <wsa:ReplyTo>
+            <wsa:Address>http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous</wsa:Address>
+        </wsa:ReplyTo>
+    </s:Header>
+    <s:Body>
+        <wsen:Enumerate/>
+    </s:Body>
+</s:Envelope>''' % _NAMESPACES
+
+WS_PULL_ENVELOPE = r'''<?xml version="1.0" encoding="UTF-8"?>
+<s:Envelope xmlns:s="%(soap)s"
+            xmlns:wsa="%(addressing)s"
+            xmlns:wsman="%(wsman)s"
+            xmlns:wsen="http://schemas.xmlsoap.org/ws/2004/09/enumeration"
+            >
+    <s:Header>
+        <wsa:Action s:mustUnderstand="true">%%(actionUri)s</wsa:Action>
+        <wsa:To s:mustUnderstand="true">%%(uri)s</wsa:To>
+        <wsman:ResourceURI s:mustUnderstand="true">%%(resourceUri)s</wsman:ResourceURI>
+        <wsa:MessageID s:mustUnderstand="true">uuid:%%(uuid)s</wsa:MessageID>
+        <wsa:ReplyTo>
+            <wsa:Address>http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous</wsa:Address>
+        </wsa:ReplyTo>
+    </s:Header>
+    <s:Body>
+        <wsen:Pull>
+            <wsen:EnumerationContext>%%(enumctx)s</wsen:EnumerationContext>
+        </wsen:Pull>
+    </s:Body>
+</s:Envelope>''' % _NAMESPACES
+
+AMT_PROTOCOL_PORT_MAP = {
+    'http': 16992,
+    'https': 16993,
+}
 
 class wsmanResource(object):
     '''
     Class to represent a resource on a wsman compatible server
     '''
 
-    def __init__(self, target = None, resource = None, username = None, password = None):
+    def __init__(self, target = None, is_ssl = False, username = None, password = None, resource = None):
         '''
         Set up this resource
 
-        @param target: the URL of the wsman service
+        @param target: the hostname or IP address of the wsman service
+        @param is_ssl: should we communicate using SSL?
         @param resource: the identifier of the resource containing the settings we are interested in
+        @param username: the username to log in with
+        @param password: the password to log in with
         '''
-        self.target = target + "/wsman"
+        if is_ssl:
+            scheme = 'https'
+        else:
+            scheme = 'http'
+        port = AMT_PROTOCOL_PORT_MAP[scheme]
+        self.target = scheme + "://" + target + ":" + str(port) + "/wsman"
         self.resourceId = resource
         self.resourceUri = RESOURCE_URIS[self.resourceId]
         self.resource_methods = RESOURCE_METHODS[resource]
@@ -204,28 +278,28 @@ class wsmanResource(object):
         return d
 
 #TODO Implement send/receive logic
-    def request(self, params = {}):
+    @decorators.retry
+    def request(self, doc = None, params = {}):
         '''
         Send a request to the target and return the response
 
         '''
         params['uuid'] = uuid.uuid4()
-        doc = WS_ENVELOPE % params
-        print doc
+        if enumerate:
+            doc = doc % params
+        else:
+            doc = doc % params
         resp = requests.post(
             self.target,
+            timeout = (2, 1),
             headers = {'content-type': 'application/soap+xml;charset=UTF-8'},
             auth = requests.auth.HTTPDigestAuth(self.username, self.password),
             data = doc,
             allow_redirects = False,
         )
         resp.raise_for_status()
-        data = xmltodict.parse(resp.content)
-        print resp.content
-        print data
-#        raise NotImplementedError("Need to be able to send stuff!!")
+        return data_structures.WryDict.from_xml(resp.content)
 
-#TODO convert get to a request
     def get(self, setting = ''):
         '''
         Send a get request and return the result
@@ -240,7 +314,7 @@ class wsmanResource(object):
             'extraHeader': '',
             'body': self.resource_methods['get']
         }
-        return self.request(params)
+        return self.request(doc = WS_ENVELOPE, params = params)
 
     def put(self, **kwargs):
         '''
@@ -248,30 +322,81 @@ class wsmanResource(object):
 
         @param **kwargs: zero or more settings to put back to the wsman server
         '''
-        pass
+        params = {
+            'uri': self.target,
+            'actionUri': ACTIONS_URIS['put'],
+            'resourceUri': self.resourceUri,
+            'setting': '',
+            'extraHeader': '',
+            'body': self.resource_methods['put'] % kwargs
+        }
+        return self.request(doc = WS_ENVELOPE, params = params)
 
     def delete(self, **kwargs):
         '''
         Delete an instance
         '''
-        raise NotImplementedError("Create/Delete not supported")
+        params = {
+            'uri': self.target,
+            'actionUri': ACTIONS_URIS['delete'],
+            'resourceUri': self.resourceUri,
+            'setting': '',
+            'extraHeader': '',
+            'body': self.resource_methods['delete'] % kwargs
+        }
+        return self.request(doc = WS_ENVELOPE, params = params)
 
     def Create(self, **kwargs):
         '''
         Create an instance
         '''
-        raise NotImplementedError("Create/Delete not supported")
+        params = {
+            'uri': self.target,
+            'actionUri': ACTIONS_URIS['create'],
+            'resourceUri': self.resourceUri,
+            'setting': '',
+            'extraHeader': '',
+            'body': self.resource_methods['create'] % kwargs
+        }
+        return self.request(doc = WS_ENVELOPE, params = params)
 
-    def enumerate(self):
+    def enumerate(self, **kwargs):
         '''
         Return all instances of this Resource
         '''
-        pass
+        params = {
+            'uri': self.target,
+            'actionUri': ACTIONS_URIS['enumerate'],
+            'resourceUri': self.resourceUri,
+            'setting': '',
+            'extraHeader': '',
+            'body': self.resource_methods['enumerate'] % kwargs
+        }
+        enum_response = self.request(doc = WS_ENUM_ENVELOPE, params = params)
+        params['enumctx'] = enum_response['EnumerateResponse']['EnumerationContext']
+        params['actionUri'] = ACTIONS_URIS['pull']
+        output = data_structures.WryDict({self.resourceId:[]})
+        while params['enumctx']:
+            data = self.request(doc = WS_PULL_ENVELOPE, params = params)
+            if not data['PullResponse'].has_key('EnumerationContext'):
+                params['enumctx'] = None
+            output[self.resourceId].append(data['PullResponse']['Items'])
+        return output
 
-    def invoke(self, method):
+    def invoke(self, method, **kwargs):
         '''
         Call a method and return the result
 
         @param method: the method name to call
         '''
-        pass
+        if not self.resource_methods.has_key(method):
+            raise Exception("Method '%s' not defined" % method)
+        params = {
+            'uri': self.target,
+            'actionUri': self.resourceUri + "/" + method,
+            'resourceUri': self.resourceUri,
+            'setting': '',
+            'extraHeader': '<wsman:SelectorSet><wsman:Selector Name="%(headerSelectorType)s">%(headerSelector)s</wsman:Selector></wsman:SelectorSet>' % kwargs,
+            'body': self.resource_methods[method] % kwargs
+        }
+        return self.request(doc = WS_ENVELOPE, params = params)

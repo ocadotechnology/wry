@@ -12,9 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import DeviceCapability
-import common
-import config
+import wsman
 
 '''
 Created on 4 Jul 2017
@@ -22,53 +20,49 @@ Created on 4 Jul 2017
 @author: adrian
 '''
 
-AMT_POWER_STATE_MAP = [
-    None,
-    config.StateMap('other', None),
-    config.StateMap('on', None),
-    config.StateMap('sleep', 'Light'),
-    config.StateMap('sleep', 'Deep'),
-    config.StateMap('cycle', '(Off - Soft)'),
-    config.StateMap('off', 'hard'),
-    config.StateMap('hibernate', '(Off - Soft)'),
-    config.StateMap('off', 'soft'),
-    config.StateMap('cycle', '(Off - Hard)'),
-    config.StateMap('Master Bus Reset', None),
-    config.StateMap('Diagnostic Interrupt (NMI)', None),
-    config.StateMap('off', 'Soft Graceful'),
-    config.StateMap('off', 'Hard Graceful'),
-    config.StateMap('Master Bus Reset', 'Graceful'),
-    config.StateMap('cycle', '(Off - Soft Graceful)'),
-    config.StateMap('cycle', '(Off - Hard Graceful)'),
-    config.StateMap('Diagnostic Interrupt (INIT)', None),
-]
+AMT_POWER_STATE_MAP = {
+    0:  (None, None),
+    1:  ('other', None),
+    2:  ('on', None),
+    3:  ('sleep', 'Light'),
+    4:  ('sleep', 'Deep'),
+    5:  ('cycle', '(Off - Soft)'),
+    6:  ('off', 'hard'),
+    7:  ('hibernate', '(Off - Soft)'),
+    8:  ('off', 'soft'),
+    9:  ('cycle', '(Off - Hard)'),
+    10: ('Master Bus Reset', None),
+    11: ('Diagnostic Interrupt (NMI)', None),
+    12: ('off', 'Soft Graceful'),
+    13: ('off', 'Hard Graceful'),
+    14: ('Master Bus Reset', 'Graceful'),
+    15: ('cycle', '(Off - Soft Graceful)'),
+    16: ('cycle', '(Off - Hard Graceful)'),
+    17: ('Diagnostic Interrupt (INIT)', None),
+}
 
-'''
-.. _CIM\_AssociatedPowerManagementService: http://software.intel.com/sites/manageability/AMT_Implementation_and_Reference_Guide/default.htm?turl=HTMLDocuments%2FWS-Management_Class_Reference%2FCIM_BootConfigSetting.htm
 
-Mapping of device power states. A StateMap's index in this list, is the
-PowerState value as specified in the CIM\_AssociatedPowerManagementService_
-schema class.
-'''
-
-class AMTPower(DeviceCapability.DeviceCapability):
+class AMTPower:
     '''Control over a device's power state.'''
 
-    def __init__(self, *args, **kwargs):
-        self.resource_name = 'CIM_AssociatedPowerManagementService'
-        super(AMTPower, self).__init__(*args, **kwargs)
+    def __init__(self, device):
+        self.resource = wsman.wsmanResource(
+            target = device.target,
+            is_ssl = device.is_ssl,
+            username = device.username,
+            password = device.password,
+            resource = 'CIM_AssociatedPowerManagementService'
+        )
 
     def request_power_state_change(self, power_state):
-        return common.invoke_method(
-            service_name = 'CIM_PowerManagementService',
-            resource_name = 'CIM_ComputerSystem',
-            affected_item = 'ManagedElement',
-            method_name = 'RequestPowerStateChange',
-            options = self.options,
-            client = self.client,
-            selector = ('Name', 'ManagedSystem', 'Intel(r) AMT Power Management Service',),
-            args_before = [('PowerState', str(power_state)), ],
-            anonymous = True,
+        '''
+        Change the NUC to the specified power state
+        '''
+        return self.resource.invoke(
+            'RequestPowerStateChange',
+            headerSelectorType = "Name",
+            headerSelector = 'Intel(r) AMT Power Management Service',
+            power_state = power_state,
         )
 
     @property
@@ -84,24 +78,22 @@ class AMTPower(DeviceCapability.DeviceCapability):
 
     def turn_on(self):
         '''Turn on the device.'''
-        sub_state = None
-        index = AMT_POWER_STATE_MAP.index(('on', sub_state))
-        self.request_power_state_change(index)
+        self.request_power_state_change(AMT_POWER_STATE_MAP.index(('on', None)))
 
     def turn_off(self):
         '''Turn off the device.'''
-        return self.request_power_state_change(8)
+        return self.request_power_state_change(AMT_POWER_STATE_MAP.index(('off', 'soft')))
 
     def reset(self):
         '''Reboot the device.'''
-        return self.request_power_state_change(5)
+        return self.request_power_state_change(AMT_POWER_STATE_MAP.index(('cycle', '(Off - Soft)')))
 
     def toggle(self):
         """
         If the device is off, turn it on.
         If it is on, turn it off.
         """
-        state = self.state
+        state = self.state[0]
         if state == 'on':
             self.turn_off()
         elif state == 'off':

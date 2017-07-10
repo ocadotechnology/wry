@@ -16,11 +16,15 @@ import AMTDevice
 import AMTBoot
 import AMTPower
 import AMTKVM
+import AMTOptIn
+import AMTRedirection
 
 AMTDevice = AMTDevice.AMTDevice
 AMTBoot = AMTBoot.AMTBoot
 AMTPower = AMTPower.AMTPower
 AMTKVM = AMTKVM.AMTKVM
+AMTOptin = AMTOptIn.AMTOptIn
+AMTRedirection = AMTRedirection.AMTRedirection
 
 # For backwards compatibility
 device = {
@@ -28,6 +32,8 @@ device = {
     'AMTBoot': AMTBoot,
     'AMTPower': AMTPower,
     'AMTKVM': AMTKVM,
+    'AMTOptIn': AMTOptIn,
+    'AMTRedirection': AMTRedirection,
 }
 
-__all__ = [AMTDevice, AMTBoot, AMTPower, AMTKVM]
+__all__ = [AMTDevice, AMTBoot, AMTPower, AMTKVM, AMTOptIn, AMTRedirection]

@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import wsman
+import wsmanModule
 
 '''
 Created on 4 Jul 2017
@@ -21,7 +21,7 @@ Created on 4 Jul 2017
 '''
 
 
-class AMTBoot(wsman.wsmanModule):
+class AMTBoot(wsmanModule.wsmanModule):
     '''Control how the machine will boot next time.'''
 
     RESOURCES = {

@@ -16,7 +16,7 @@ import xmltodict
 import json
 from ast import literal_eval
 from collections import OrderedDict
-import wsman
+import wsmanData
 
 """
 Wry data structures and helpers.
@@ -63,7 +63,7 @@ class WryDict(OrderedDict):
             '''
             output = self.__class__()
             for resource_name, resource in self.iteritems():
-                uri = wsman.RESOURCE_URIS.get(resource_name, None)
+                uri = wsmanData.RESOURCE_URIS.get(resource_name, None)
                 output[resource_name] = resource.copy()
                 output[resource_name][u'@xmlns'] = uri
             return output

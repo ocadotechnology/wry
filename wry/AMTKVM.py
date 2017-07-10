@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import wsman
+import wsmanModule
 
 '''
 Created on 4 Jul 2017
@@ -26,58 +26,59 @@ AMT_KVM_ENABLEMENT_MAP = {
     3: (False, 'Disabled'),
 }
 
-class EnablementMap(object):
-    '''TODO: Refactor this to just be a dict. It should simplify things a lot.'''
-    def __init__(self, *values, **options):
-        # Make this take ONE ARRAY of values...
-        ''' Might want to stop people providing None.'''
-        self.values = values
-        self.options = options
-        self._enabled_values = []
 
-    def __repr__(self):
-        return 'EnablementMap(%s)' % ', '.join(
-                ['%s: %s' % (value.__repr__(), value in self.options) for value in self.values]
-        )
+#class EnablementMap(object):
+#    '''TODO: Refactor this to just be a dict. It should simplify things a lot.'''
+#    def __init__(self, *values, **options):
+#        # Make this take ONE ARRAY of values...
+#        ''' Might want to stop people providing None.'''
+#        self.values = values
+#        self.options = options
+#        self._enabled_values = []
+#
+#    def __repr__(self):
+#        return 'EnablementMap(%s)' % ', '.join(
+#                ['%s: %s' % (value.__repr__(), value in self.options) for value in self.values]
+#        )
+#
+#    def __str__(self):
+#        return self.__repr__()
+#
+#    def __iadd__(self, value):
+#        try:
+#            self.options['iadd'](value)
+#        except (KeyError, TypeError):
+#            raise AttributeError('No iadd function specified.')
+#
+#    def __isub__(self, value):
+#        try:
+#            self.options['isub'](value)
+#        except (KeyError, TypeError):
+#            raise AttributeError('No isub function specified.')
+#
+#    def toggle(self, value):
+#        if value not in self.values:
+#            raise TypeError('%r is an invalid value. Choose one of %r.' % (value, self.values))
+#        try:
+#            self._enabled_values.remove(value)
+#        except ValueError:
+#            self._enabled_values.append(value)
+#
+#    @property
+#    def enabled(self):
+#        return self._enabled_values
+#
+#    @enabled.setter
+#    def enabled(self, values):
+#        to_set = []
+#        for value in values:
+#            if value not in self.values:
+#                raise TypeError('%r is an invalid value. Choose one of %r.' % (value, self.values))
+#            to_set.append(value)
+#        self._enabled_values = to_set
 
-    def __str__(self):
-        return self.__repr__()
 
-    def __iadd__(self, value):
-        try:
-            self.options['iadd'](value)
-        except (KeyError, TypeError):
-            raise AttributeError('No iadd function specified.')
-
-    def __isub__(self, value):
-        try:
-            self.options['isub'](value)
-        except (KeyError, TypeError):
-            raise AttributeError('No isub function specified.')
-
-    def toggle(self, value):
-        if value not in self.values:
-            raise TypeError('%r is an invalid value. Choose one of %r.' % (value, self.values))
-        try:
-            self._enabled_values.remove(value)
-        except ValueError:
-            self._enabled_values.append(value)
-
-    @property
-    def enabled(self):
-        return self._enabled_values
-
-    @enabled.setter
-    def enabled(self, values):
-        to_set = []
-        for value in values:
-            if value not in self.values:
-                raise TypeError('%r is an invalid value. Choose one of %r.' % (value, self.values))
-            to_set.append(value)
-        self._enabled_values = to_set
-
-
-class AMTKVM(wsman.wsmanModule):
+class AMTKVM(wsmanModule.wsmanModule):
     '''Control over a device's KVM (VNC) functionality.'''
     RESOURCES = {
         'kvmRedirectionSap': 'CIM_KVMRedirectionSAP',

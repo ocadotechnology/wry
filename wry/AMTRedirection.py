@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import wsman
+import wsmanModule
 
 '''
 Created on 5 Jul 2017
@@ -40,7 +40,7 @@ AMT_REDIRECTION_STATE_MAP = {
 }
 
 
-class AMTRedirection(wsman.wsmanModule):
+class AMTRedirection(wsmanModule.wsmanModule):
     '''Control over Serial-over-LAN and storage redirection.'''
     RESOURCES = {
         'redirectionService': 'AMT_RedirectionService',

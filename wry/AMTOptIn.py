@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import wsman
+import wsmanModule
 
 '''
 Created on 5 Jul 2017
@@ -37,7 +37,7 @@ OPT_IN_STATE = {
 }
 
 
-class AMTOptIn(wsman.wsmanModule):
+class AMTOptIn(wsmanModule.wsmanModule):
     '''Manage user consent and opt-in codes.'''
     RESOURCES = {
         'optInService': 'IPS_OptInService',

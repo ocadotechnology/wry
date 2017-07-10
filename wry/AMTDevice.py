@@ -17,8 +17,9 @@ import AMTPower
 import AMTKVM
 import AMTOptIn
 import AMTRedirection
-import wsman
+import wsmanData
 import WryDict
+import wsmanResource
 
 '''
 Created on 4 Jul 2017
@@ -58,9 +59,9 @@ class AMTDevice(object):
         '''
         output = WryDict.WryDict()
         impossible = []
-        for name, methods in wsman.RESOURCE_METHODS.items():
+        for name, methods in wsmanData.RESOURCE_METHODS.items():
             try:
-                res = wsman.wsmanResource(
+                res = wsmanResource.wsmanResource(
                     target = self.target,
                     is_ssl = self.is_ssl,
                     username = self.username,

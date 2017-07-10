@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import wsman
+import wsmanModule
 
 '''
 Created on 4 Jul 2017
@@ -42,7 +42,7 @@ AMT_POWER_STATE_MAP = {
 }
 
 
-class AMTPower(wsman.wsmanModule):
+class AMTPower(wsmanModule.wsmanModule):
     '''Control over a device's power state.'''
     RESOURCES = {
         'power': 'CIM_AssociatedPowerManagementService'

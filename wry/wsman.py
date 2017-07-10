@@ -14,8 +14,8 @@
 
 import uuid
 import requests
-import data_structures
-import decorators
+import WryDict
+from time import sleep
 
 '''
 Created on 6 Jul 2017
@@ -107,48 +107,45 @@ RESOURCE_METHODS = {
     },
     'CIM_KVMRedirectionSAP': {
         'get': '',
-        'put': '''
+        'put': '',
+        'RequestStateChange': '''
+        <n1:RequestStateChange_INPUT>
+            <n1:RequestedState>%(state)s</n1:RequestedState>
+        </n1:RequestStateChange_INPUT>
 ''',
     },
     'IPS_KVMRedirectionSettingData': {
         'get': '',
-        'put': '''
-''',
+        'put': '',
     },
     'IPS_OptInService': {
         'get': '',
         'enumerate': '',
         'pull': '',
-        'put': '''
-''',
+        'put': '',
     },
     'AMT_RedirectionService': {
         'get': '',
-        'put': '''
-''',
+        'put': '',
     },
     'AMT_TLSSettingData': {
         'get': '',
-        'put': '''
-''',
+        'put': '',
     },
     'AMT_BootCapabilities': {
         'get': '',
     },
     'AMT_BootSettingData': {
         'get': '',
-        'put': '''
-''',
+        'put': '',
     },
     'AMT_EthernetPortSettings': {
         'get': '',
-        'put': '''
-''',
+        'put': '',
     },
     'AMT_GeneralSettings': {
         'get': '',
-        'put': '''
-''',
+        'put': '',
     },
 }
 
@@ -277,8 +274,6 @@ class wsmanResource(object):
         d['text'] = t.text
         return d
 
-#TODO Implement send/receive logic
-    @decorators.retry
     def request(self, doc = None, params = {}):
         '''
         Send a request to the target and return the response
@@ -289,16 +284,23 @@ class wsmanResource(object):
             doc = doc % params
         else:
             doc = doc % params
-        resp = requests.post(
-            self.target,
-            timeout = (2, 1),
-            headers = {'content-type': 'application/soap+xml;charset=UTF-8'},
-            auth = requests.auth.HTTPDigestAuth(self.username, self.password),
-            data = doc,
-            allow_redirects = False,
-        )
-        resp.raise_for_status()
-        return data_structures.WryDict.from_xml(resp.content)
+        for _ in range(CONNECT_RETRIES + 1):
+            try:
+                resp = requests.post(
+                    self.target,
+                    timeout = (2, 1),
+                    headers = {'content-type': 'application/soap+xml;charset=UTF-8'},
+                    auth = requests.auth.HTTPDigestAuth(self.username, self.password),
+                    data = doc,
+                    allow_redirects = False,
+                )
+                resp.raise_for_status()
+                return WryDict.WryDict.from_xml(resp.content)
+            except requests.exceptions.ConnectTimeout:
+                print("Failed, retrying")
+                sleep(.1)
+            except:
+                raise
 
     def get(self, setting = ''):
         '''
@@ -314,7 +316,10 @@ class wsmanResource(object):
             'extraHeader': '',
             'body': self.resource_methods['get']
         }
-        return self.request(doc = WS_ENVELOPE, params = params)
+        response = self.request(doc = WS_ENVELOPE, params = params)
+        if len(setting) > 0:
+            response = response[self.resourceId][setting]
+        return response
 
     def put(self, **kwargs):
         '''
@@ -322,43 +327,46 @@ class wsmanResource(object):
 
         @param **kwargs: zero or more settings to put back to the wsman server
         '''
+        current = self.get()
+        for k, v in kwargs.iteritems():
+            current[self.resourceId][k] = v
         params = {
             'uri': self.target,
             'actionUri': ACTIONS_URIS['put'],
             'resourceUri': self.resourceUri,
             'setting': '',
             'extraHeader': '',
-            'body': self.resource_methods['put'] % kwargs
+            'body': current.to_xml
         }
         return self.request(doc = WS_ENVELOPE, params = params)
 
-    def delete(self, **kwargs):
-        '''
-        Delete an instance
-        '''
-        params = {
-            'uri': self.target,
-            'actionUri': ACTIONS_URIS['delete'],
-            'resourceUri': self.resourceUri,
-            'setting': '',
-            'extraHeader': '',
-            'body': self.resource_methods['delete'] % kwargs
-        }
-        return self.request(doc = WS_ENVELOPE, params = params)
-
-    def Create(self, **kwargs):
-        '''
-        Create an instance
-        '''
-        params = {
-            'uri': self.target,
-            'actionUri': ACTIONS_URIS['create'],
-            'resourceUri': self.resourceUri,
-            'setting': '',
-            'extraHeader': '',
-            'body': self.resource_methods['create'] % kwargs
-        }
-        return self.request(doc = WS_ENVELOPE, params = params)
+#    def delete(self, **kwargs):
+#        '''
+#        Delete an instance
+#        '''
+#        params = {
+#            'uri': self.target,
+#            'actionUri': ACTIONS_URIS['delete'],
+#            'resourceUri': self.resourceUri,
+#            'setting': '',
+#            'extraHeader': '',
+#            'body': self.resource_methods['delete'] % kwargs
+#        }
+#        return self.request(doc = WS_ENVELOPE, params = params)
+#
+#    def Create(self, **kwargs):
+#        '''
+#        Create an instance
+#        '''
+#        params = {
+#            'uri': self.target,
+#            'actionUri': ACTIONS_URIS['create'],
+#            'resourceUri': self.resourceUri,
+#            'setting': '',
+#            'extraHeader': '',
+#            'body': self.resource_methods['create'] % kwargs
+#        }
+#        return self.request(doc = WS_ENVELOPE, params = params)
 
     def enumerate(self, **kwargs):
         '''
@@ -375,12 +383,12 @@ class wsmanResource(object):
         enum_response = self.request(doc = WS_ENUM_ENVELOPE, params = params)
         params['enumctx'] = enum_response['EnumerateResponse']['EnumerationContext']
         params['actionUri'] = ACTIONS_URIS['pull']
-        output = data_structures.WryDict({self.resourceId:[]})
+        output = WryDict.WryDict({self.resourceId:[]})
         while params['enumctx']:
             data = self.request(doc = WS_PULL_ENVELOPE, params = params)
             if not data['PullResponse'].has_key('EnumerationContext'):
                 params['enumctx'] = None
-            output[self.resourceId].append(data['PullResponse']['Items'])
+            output[self.resourceId].append(data['PullResponse']['Items'][self.resourceId])
         return output
 
     def invoke(self, method, **kwargs):
@@ -391,12 +399,38 @@ class wsmanResource(object):
         '''
         if not self.resource_methods.has_key(method):
             raise Exception("Method '%s' not defined" % method)
+        extraHeader = ''
+        if kwargs.has_key('headerSelectior') and kwargs.has_key('headerSelectorType'):
+            '<wsman:SelectorSet><wsman:Selector Name="%(headerSelectorType)s">%(headerSelector)s</wsman:Selector></wsman:SelectorSet>' % kwargs
         params = {
             'uri': self.target,
             'actionUri': self.resourceUri + "/" + method,
             'resourceUri': self.resourceUri,
             'setting': '',
-            'extraHeader': '<wsman:SelectorSet><wsman:Selector Name="%(headerSelectorType)s">%(headerSelector)s</wsman:Selector></wsman:SelectorSet>' % kwargs,
+            'extraHeader': extraHeader,
             'body': self.resource_methods[method] % kwargs
         }
         return self.request(doc = WS_ENVELOPE, params = params)
+
+
+class wsmanModule(object):
+    '''
+    Base class for all wry modules
+    '''
+    RESOURCES = {
+    }
+
+    def __init__(self, device):
+        '''
+        Create resources for each defined resource
+        '''
+        for k in self.RESOURCES.keys():
+            self.RESOURCES[k] = wsmanResource(
+                target = device.target,
+                is_ssl = device.is_ssl,
+                username = device.username,
+                password = device.password,
+                resource = self.RESOURCES[k]
+            )
+
+

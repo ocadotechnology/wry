@@ -12,9 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import DeviceCapability
-from collections import OrderedDict
-from wry.data_structures import RadioButtons
+import wsman
 
 '''
 Created on 5 Jul 2017
@@ -23,55 +21,53 @@ Created on 5 Jul 2017
 '''
 
 
-class AMTOptIn(DeviceCapability.DeviceCapability):
-    '''Manage user consent and opt-in codes.'''
+CONSENT_MAPPING = {
+    0: None,
+    1: 'KVM',
+    4294967295: 'All',
+}
 
-    def __init__(self, *args, **kwargs):
-        self._consent_mapping = OrderedDict([
-            (0, None),
-            (1, 'KVM'),
-            (4294967295, 'All'),
-        ])
-        self._consent_values = RadioButtons(self._consent_mapping.values())
-        super(AMTOptIn, self).__init__(*args, **kwargs)
+
+OPT_IN_STATE = {
+    0: 'Not started',
+    1: 'Requested',
+    2: 'Displayed',
+    3: 'Received',
+    4: 'In Session',
+}
+
+
+class AMTOptIn(wsman.wsmanModule):
+    '''Manage user consent and opt-in codes.'''
+    RESOURCES = {
+        'optInService': 'IPS_OptInService',
+    }
 
     @property
     def required(self):
-        level = self._consent_mapping[self.get('IPS_OptInService', 'OptInRequired')]
-        self._consent_values.selected = level
-        return self._consent_values
+        return CONSENT_MAPPING[self.RESOURCES['optInService'].get('OptInRequired')]
 
     @required.setter
     def required(self, value):
-        for key, val in self._consent_mapping.items():
+        for key, val in self.CONSENT_MAPPING.items():
             if value == val:
-                break
+                self.RESOURCES['optInService'].put(OptInRequired = key)
+                return
         else:
             raise KeyError
-        self.put('IPS_OptInService', {'OptInRequired': key})
-        self._consent_values.selected = value
+
 
     @property
     def code_ttl(self):
         '''How long an opt-in code lasts, in seconds.'''
-        return self.get('IPS_OptInService', 'OptInCodeTimeout')
+        return self.RESOURCES['optInService'].get('OptInCodeTimeout')
 
     @code_ttl.setter
     def code_ttl(self, value):
-        try:
-            assert type(value) == int
-            assert 60 <= value <= 900
-        except (TypeError, AssertionError):
+        if type(value) != int or value < 60 or value > 900:
             raise TypeError('TTL (in seconds) must be an integer between 60 and 900.')
-        self.put('IPS_OptInService', {'OptInCodeTimeout': value})
+        self.RESOURCES['optInService'].put(OptInCodeTimeout = value)
 
     @property
     def state(self):
-        mapping = {
-            0: 'Not started',
-            1: 'Requested',
-            2: 'Displayed',
-            3: 'Received',
-            4: 'In Session',
-        }
-        return mapping[self.get('IPS_OptInService', 'OptInState')]
+        return OPT_IN_STATE[self.RESOURCES['optInService'].get('OptInState')]

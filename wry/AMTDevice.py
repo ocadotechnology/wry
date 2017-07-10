@@ -12,13 +12,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-#import AMTBoot
+import AMTBoot
 import AMTPower
-#import AMTKVM
-#import AMTOptIn
-#import AMTRedirection
+import AMTKVM
+import AMTOptIn
+import AMTRedirection
 import wsman
-import data_structures
+import WryDict
 
 '''
 Created on 4 Jul 2017
@@ -44,11 +44,11 @@ class AMTDevice(object):
         self.username = username
         self.password = password
         # Now create the resource classes
-#        self.boot = AMTBoot.AMTBoot(self)
+        self.boot = AMTBoot.AMTBoot(self)
         self.power = AMTPower.AMTPower(self)
-#        self.kvm = AMTKVM.AMTKVM(self)
-#        self.opt_in = AMTOptIn.AMTOptIn(self)
-#        self.redirection = AMTRedirection.AMTRedirection(self)
+        self.kvm = AMTKVM.AMTKVM(self)
+        self.opt_in = AMTOptIn.AMTOptIn(self)
+        self.redirection = AMTRedirection.AMTRedirection(self)
 
     def dump(self, as_json = True):
         '''
@@ -56,7 +56,7 @@ class AMTDevice(object):
 
         :returns: WryDict or json.
         '''
-        output = data_structures.WryDict()
+        output = WryDict.WryDict()
         impossible = []
         for name, methods in wsman.RESOURCE_METHODS.items():
             try:

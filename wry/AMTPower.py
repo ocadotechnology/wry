@@ -42,23 +42,17 @@ AMT_POWER_STATE_MAP = {
 }
 
 
-class AMTPower:
+class AMTPower(wsman.wsmanModule):
     '''Control over a device's power state.'''
-
-    def __init__(self, device):
-        self.resource = wsman.wsmanResource(
-            target = device.target,
-            is_ssl = device.is_ssl,
-            username = device.username,
-            password = device.password,
-            resource = 'CIM_AssociatedPowerManagementService'
-        )
+    RESOURCES = {
+        'power': 'CIM_AssociatedPowerManagementService'
+    }
 
     def request_power_state_change(self, power_state):
         '''
         Change the NUC to the specified power state
         '''
-        return self.resource.invoke(
+        return self.RESOURCES['power'].invoke(
             'RequestPowerStateChange',
             headerSelectorType = "Name",
             headerSelector = 'Intel(r) AMT Power Management Service',
@@ -73,7 +67,7 @@ class AMTPower:
         A :class:`wry.device.StateMap` as described in
         :data:`wry.device.AMT_POWER_STATE_MAP`.
         '''
-        response = self.get(setting = 'PowerState')
+        response = self.RESOURCES['power'].get(setting = 'PowerState')
         return AMT_POWER_STATE_MAP[response]
 
     def turn_on(self):

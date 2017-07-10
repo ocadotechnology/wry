@@ -12,9 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections import OrderedDict
-import DeviceCapability
-from wry.AMTKVM import EnablementMap
+import wsman
 
 '''
 Created on 5 Jul 2017
@@ -22,55 +20,47 @@ Created on 5 Jul 2017
 @author: adrian
 '''
 
+AMT_REDIRECTION_STATE_MAP = {
+    0: 'Unknown',
+    1: 'Other',
+    2: 'Enabled',
+    3: 'Disabled',
+    4: 'Shutting Down',
+    5: 'Not Applicable',
+    6: 'Enabled but Offline',
+    7: 'In Test',
+    8: 'Deferred',
+    9: 'Quiesce',
+    10: 'Starting',
+    11: 'DMTF Reserved',
+    32768: (),
+    32769: ('IDER'),
+    32770: ('SoL'),
+    32771: ('IDER', 'SoL'),
+}
 
-class AMTRedirection(DeviceCapability.DeviceCapability):
+
+class AMTRedirection(wsman.wsmanModule):
     '''Control over Serial-over-LAN and storage redirection.'''
+    RESOURCES = {
+        'redirectionService': 'AMT_RedirectionService',
+    }
 
-    def __init__(self, *args, **kwargs):
-        self._state_mapping = OrderedDict([
-            (0, 'Unknown'),
-            (1, 'Other'),
-            (2, 'Enabled'),
-            (3, 'Disabled'),
-            (4, 'Shutting Down'),
-            (5, 'Not Applicable'),
-            (6, 'Enabled but Offline'),
-            (7, 'In Test'),
-            (8, 'Deferred'),
-            (9, 'Quiesce'),
-            (10, 'Starting'),
-            (11, 'DMTF Reserved'),
-            (32768, 'IDER and SOL are disabled'),
-            (32769, 'IDER is enabled and SOL is disabled'),
-            (32770, 'SOL is enabled and IDER is disabled'),
-            (32771, 'IDER and SOL are enabled'),
-        ])
-        super(AMTRedirection, self).__init__(*args, **kwargs)
-    
     @property
     def enabled_features(self):
-        items = EnablementMap('SoL', 'IDER')
-        state = self.get('AMT_RedirectionService', 'EnabledState')
-        if state >= 32768:
-            if state in (32769, 32771):
-                items.toggle('IDER')
-            if state in (32770, 32771):
-                items.toggle('SoL')
-        else:
-            if state in self._state_mapping:
-                raise LookupError('Unknown state discovered: %r' % self._state_mapping[state])
-            raise KeyError('Unknown state discovered: %r' % state)
-        return items
+        state = self.RESOURCES['redirectionService'].get('EnabledState')
+        return AMT_REDIRECTION_STATE_MAP[state]
 
     @enabled_features.setter
     def enabled_features(self, features):
         if not features:
-            self.put('AMT_RedirectionService', {'EnabledState': 32768})
-        elif set(features) == set(['SoL', 'IDER']):
-            self.put('AMT_RedirectionService', {'EnabledState': 32771})
-        elif features[0] == 'SoL':
-            self.put('AMT_RedirectionService', {'EnabledState': 32770})
-        elif features[0] == 'IDER':
-            self.put('AMT_RedirectionService', {'EnabledState': 32769})
+            value = 32768
+        elif 'SoL' in features and 'IDER' in features:
+            value = 32771
+        elif 'SoL' in features:
+            value = 32770
+        elif 'IDER' in features:
+            value = 32769
         else:
             raise ValueError('Invalid data provided. Please provide a list comprising only of the following elements: %s' % ', '.join([value.__repr__ for value in self.enabled.values]))
+        self.RESOURCES['redirectionService'].put(EnabledState = value)

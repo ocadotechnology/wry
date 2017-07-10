@@ -1,5 +1,4 @@
 #!/usr/bin/env python2
-from pprint import pprint, pformat
 
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -13,15 +12,15 @@ from pprint import pprint, pformat
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""
-Wry data structures and helpers.
-"""
-
 import xmltodict
 import json
 from ast import literal_eval
 from collections import OrderedDict
 import wsman
+
+"""
+Wry data structures and helpers.
+"""
 
 
 class WryDict(OrderedDict):
@@ -57,6 +56,7 @@ class WryDict(OrderedDict):
                         value = unicode(value)
                 output[key] = value
             return output
+
         def _with_namespaces():
             '''
             Add an XML namespace attribute(s) to the dictionary value(s).
@@ -126,32 +126,3 @@ class WryDict(OrderedDict):
 
     def as_json(self, indent = 4):
         return json.dumps(self, indent = indent)
-
-
-#class RadioButtons(object):
-#    def __init__(self, values):
-#        self.values = values
-#        self._selected_value = Ellipsis
-#
-#    def __repr__(self):
-#        out = []
-#        for value in self.values:
-#            if value == self._selected_value:
-#                out.append('<%r>' % value)
-#            else:
-#                out.append(value.__repr__())
-#        return ' | '.join(out)
-#
-#    def __str__(self):
-#        return self.__repr__()
-#
-#    @property
-#    def selected(self):
-#        return self._selected_value
-#
-#    @selected.setter
-#    def selected(self, value):
-#        if value in self.values:
-#            self._selected_value = value
-#        else:
-#            raise TypeError('%r is an invalid value. Choose one of %r.' % (value, self.values))

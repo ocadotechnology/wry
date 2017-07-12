@@ -14,7 +14,6 @@
 
 import TestBase
 import wry
-import unittest
 '''
 Created on 10 Jul 2017
 

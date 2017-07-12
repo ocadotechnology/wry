@@ -34,6 +34,8 @@ class DEVICE:
     is_ssl = False
     username = None
     password = None
+    debug = True
+    showxml = False
 
 
 class RESPONSE:

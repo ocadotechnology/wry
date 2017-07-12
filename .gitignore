@@ -1,2 +1,4 @@
 /.settings
 *.pyc
+/.eggs
+/wry.egg-info

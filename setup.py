@@ -20,20 +20,20 @@ from wry.version import __VERSION__
 
 
 setup(
-    name='wry',
-    version=__VERSION__,
-    packages=find_packages(),
-    author='Adrian Hungate',
-    author_email='adrian.hungate@ocado.com',
-    description='Library for managing Intel AMT.',
-    long_description=open('README.md').read(),
-    url='https://github.com/ocadotechnology/wry/',
-    test_suite='wry.tests',
-    install_requires=[
-        'pywsman >= 2.5.2, < 2.6.0',
+    name = 'wry',
+    version = __VERSION__,
+    packages = find_packages(),
+    author = 'Adrian Hungate',
+    author_email = 'adrian.hungate@ocado.com',
+    description = 'Library for managing Intel AMT.',
+    long_description = open('README.md').read(),
+    url = 'https://github.com/ocadotechnology/wry/',
+    test_suite = 'tests',
+    install_requires = [
+        'requests',
         'xmltodict >= 0.7',
     ],
-    classifiers=[
+    classifiers = [
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: System Administrators',
         'Intended Audience :: Developers',

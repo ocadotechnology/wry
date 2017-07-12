@@ -13,6 +13,7 @@
 # under the License.
 
 import wsmanResource
+import string
 
 '''
 Created on 10 Jul 2017
@@ -32,10 +33,11 @@ class wsmanModule(object):
         Create resources for each defined resource
         '''
         for k in self.RESOURCES.keys():
-            self.RESOURCES[k] = wsmanResource.wsmanResource(
-                target = device.target,
-                is_ssl = device.is_ssl,
-                username = device.username,
-                password = device.password,
-                resource = self.RESOURCES[k]
-            )
+            if type(self.RESOURCES[k]) == type(""):
+                self.RESOURCES[k] = wsmanResource.wsmanResource(
+                    target = device.target,
+                    is_ssl = device.is_ssl,
+                    username = device.username,
+                    password = device.password,
+                    resource = self.RESOURCES[k]
+                )

@@ -2,9 +2,6 @@
 <projectDescription>
 	<name>wry</name>
 	<comment></comment>
-	<projects>
-		<project>pywbem</project>
-	</projects>
 	<buildSpec>
 		<buildCommand>
 			<name>org.python.pydev.PyDevBuilder</name>

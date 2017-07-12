@@ -96,18 +96,21 @@ class wsmanResource(object):
             except:
                 raise
 
-    def get(self, setting = ''):
+    def get(self, setting = '', **kwargs):
         '''
         Send a get request and return the result
 
         @param setting: the setting to get the value of (None for all in this resources)
         '''
+        extraHeader = ''
+        if kwargs.has_key('headerSelector') and kwargs.has_key('headerSelectorType'):
+            extraHeader = '<wsman:SelectorSet><wsman:Selector Name="%(headerSelectorType)s">%(headerSelector)s</wsman:Selector></wsman:SelectorSet>' % kwargs
         params = {
             'uri': self.target,
             'actionUri': wsmanData.ACTIONS_URIS['get'],
             'resourceUri': self.resourceUri,
             'setting': setting,
-            'extraHeader': '',
+            'extraHeader': extraHeader,
             'body': self.resource_methods['get']
         }
         response = self.request(doc = wsmanData.WS_ENVELOPE, params = params)
@@ -195,7 +198,7 @@ class wsmanResource(object):
             raise Exception("Method '%s' not defined" % method)
         extraHeader = ''
         if kwargs.has_key('headerSelectior') and kwargs.has_key('headerSelectorType'):
-            '<wsman:SelectorSet><wsman:Selector Name="%(headerSelectorType)s">%(headerSelector)s</wsman:Selector></wsman:SelectorSet>' % kwargs
+            extraHeader = '<wsman:SelectorSet><wsman:Selector Name="%(headerSelectorType)s">%(headerSelector)s</wsman:Selector></wsman:SelectorSet>' % kwargs
         params = {
             'uri': self.target,
             'actionUri': self.resourceUri + "/" + method,

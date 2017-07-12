@@ -45,7 +45,8 @@ AMT_POWER_STATE_MAP = {
 class AMTPower(wsmanModule.wsmanModule):
     '''Control over a device's power state.'''
     RESOURCES = {
-        'power': 'CIM_AssociatedPowerManagementService'
+        'power': 'CIM_PowerManagementService',
+        'aux': 'CIM_AssociatedPowerManagementService',
     }
 
     def request_power_state_change(self, power_state):
@@ -67,20 +68,27 @@ class AMTPower(wsmanModule.wsmanModule):
         A :class:`wry.device.StateMap` as described in
         :data:`wry.device.AMT_POWER_STATE_MAP`.
         '''
-        response = self.RESOURCES['power'].get(setting = 'PowerState')
-        return AMT_POWER_STATE_MAP[response]
+        response = self.RESOURCES['aux'].get(setting = 'PowerState')
+        return AMT_POWER_STATE_MAP[response][0]
 
     def turn_on(self):
         '''Turn on the device.'''
-        self.request_power_state_change(AMT_POWER_STATE_MAP.index(('on', None)))
+        self.request_power_state_change(2)
 
     def turn_off(self):
         '''Turn off the device.'''
-        return self.request_power_state_change(AMT_POWER_STATE_MAP.index(('off', 'soft')))
+        return self.request_power_state_change(8)
 
     def reset(self):
         '''Reboot the device.'''
-        return self.request_power_state_change(AMT_POWER_STATE_MAP.index(('cycle', '(Off - Soft)')))
+        return self.request_power_state_change(5)
+
+    def available_states(self):
+        '''Get a list of available power states given our current power state'''
+        response = self.RESOURCES['aux'].get(setting = 'AvailableRequestedPowerStates')
+        if type(response) != type([]):
+            response = [response]
+        return response
 
     def toggle(self):
         """

@@ -33,7 +33,7 @@ class CLITool(object):
     name = os.path.basename(sys.argv[0])
     version = "v0.0"
     build_date = "never"
-    short_desc = __import__('__main__').__doc__.split("\n")[1]
+    short_desc = "No description"
     copyright = "Copyright 2017 Ocado Technology. All Rights Reserved."
     licence = '''
   Licensed under the Apache License 2.0
@@ -51,6 +51,11 @@ class CLITool(object):
 
         Add extra init in __extra_init__ below
         '''
+        try:
+            self.short_desc = __import__('__main__').__doc__.split("\n")[1]
+        except:
+            pass
+
         version_message = '%%(prog)s %s (%s)' % (
             self.version,
             self.build_date

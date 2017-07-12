@@ -30,7 +30,7 @@ Created on 4 Jul 2017
 class AMTDevice(object):
     '''A wrapper class which packages AMT functionality into an accessible, device-centric format.'''
 
-    def __init__(self, target = None, is_ssl = True, username = None, password = None):
+    def __init__(self, target = None, is_ssl = True, username = None, password = None, debug = False, showxml = False):
         '''
         Create the separate resource classes
 
@@ -39,6 +39,8 @@ class AMTDevice(object):
         @param username: the username to log in with
         @param password: the password to log in with
         '''
+        self._debug = debug
+        self._showxml = showxml
         # Stash the settings everyone will need
         self.target = target
         self.is_ssl = is_ssl
@@ -50,6 +52,32 @@ class AMTDevice(object):
         self.kvm = AMTKVM.AMTKVM(self)
         self.opt_in = AMTOptIn.AMTOptIn(self)
         self.redirection = AMTRedirection.AMTRedirection(self)
+
+    @property
+    def debug(self):
+        return self._debug
+
+    @debug.setter
+    def debug(self, debug):
+        self._debug = debug
+        self.boot.debug = debug
+        self.power.debug = debug
+        self.kvm.debug = debug
+        self.opt_in.debug = debug
+        self.redirection.debug = debug
+
+    @property
+    def showxml(self):
+        return self._showxml
+
+    @showxml.setter
+    def showxml(self, showxml):
+        self._showxml = showxml
+        self.boot.showxml = showxml
+        self.power.showxml = showxml
+        self.kvm.showxml = showxml
+        self.opt_in.showxml = showxml
+        self.redirection.showxml = showxml
 
     def dump(self, as_json = True):
         '''
@@ -66,7 +94,9 @@ class AMTDevice(object):
                     is_ssl = self.is_ssl,
                     username = self.username,
                     password = self.password,
-                    resource = name
+                    resource = name,
+                    debug = self.debug,
+                    showxml = self.showxml,
                 )
                 methods = methods.keys()
                 if 'enumerate' in methods:
@@ -84,44 +114,3 @@ class AMTDevice(object):
             return '\n'.join(messages) + '\n' + output.as_json()
         print '\n'.join(messages)
         return output
-
-"""
-    @property
-    def debug(self):
-        '''
-        When set to True, openwsman will dump every [#]_ request made to the client.
-        '''
-        if self.options.get_flags() == 16:
-            return True
-        return False
-
-    @debug.setter
-    def debug(self, value):
-        if value:
-            self.options.set_dump_request()
-        else:
-            self.options.clear_dump_request()
-
-    def get_resource(self, resource_name, as_xmldoc = False):
-        '''
-        Get a native representaiton of a resource, by name. The resource URI will be
-        sourced from config.RESOURCE_URIS
-        '''
-        return common.get_resource(self.client, resource_name, options = self.options, as_xmldoc = as_xmldoc)
-
-    def enumerate_resource(self, resource_name): # Add in all relevant kwargs...
-        '''
-        Get a native representaiton of a resource, and its instances. The
-        resource URI will be sourced from config.RESOURCE_URIS
-        '''
-        return common.enumerate_resource(self.client, resource_name)
-
-    def put_resource(self, data, uri = None, silent = False):
-        '''
-        Given a WryDict describing a resource, put this data to the client.
-        '''
-        return common.put_resource(self.client, data, uri, options = self.options, silent = silent)
-
-#    def load(self, input_dict):
-#        return common.load_from_dict(client, input_dict)
-"""

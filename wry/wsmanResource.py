@@ -29,7 +29,7 @@ class wsmanResource(object):
     Class to represent a resource on a wsman compatible server
     '''
 
-    def __init__(self, target = None, is_ssl = False, username = None, password = None, resource = None):
+    def __init__(self, target = None, is_ssl = False, username = None, password = None, resource = None, debug = False, showxml = False):
         '''
         Set up this resource
 
@@ -50,6 +50,8 @@ class wsmanResource(object):
         self.resource_methods = wsmanData.RESOURCE_METHODS[resource]
         self.username = username
         self.password = password
+        self.debug = debug
+        self.showxml = showxml
 
     def etree_to_dict(self, t):
         d = {t.tag : map(self.etree_to_dict, t.iterchildren())}
@@ -67,6 +69,10 @@ class wsmanResource(object):
             doc = doc % params
         else:
             doc = doc % params
+        if self.showxml:
+            print "==== Request ===="
+            print doc
+            print "================="
         for _ in range(wsmanData.CONNECT_RETRIES + 1):
             try:
                 resp = requests.post(
@@ -77,10 +83,15 @@ class wsmanResource(object):
                     data = doc,
                     allow_redirects = False,
                 )
+                if self.showxml:
+                    print "==== Response ===="
+                    print resp.content
+                    print "=================="
                 resp.raise_for_status()
                 return WryDict.WryDict.from_xml(resp.content)
             except requests.exceptions.ConnectTimeout:
-                print("Failed, retrying")
+                if self.debug:
+                    print("Failed, retrying")
                 sleep(.1)
             except:
                 raise

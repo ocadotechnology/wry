@@ -38,7 +38,9 @@ class wsmanModule(object):
                     is_ssl = device.is_ssl,
                     username = device.username,
                     password = device.password,
-                    resource = self.RESOURCES[k]
+                    resource = self.RESOURCES[k],
+                    debug = device.debug,
+                    showxml = device.showxml,
                 )
         self._debug = device.debug
 

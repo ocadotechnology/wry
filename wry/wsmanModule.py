@@ -13,7 +13,6 @@
 # under the License.
 
 import wsmanResource
-import string
 
 '''
 Created on 10 Jul 2017
@@ -41,3 +40,20 @@ class wsmanModule(object):
                     password = device.password,
                     resource = self.RESOURCES[k]
                 )
+        self._debug = device.debug
+
+    @property
+    def debug(self):
+        return self._debug
+
+    @debug.setter
+    def debug(self, debug):
+        self._debug = debug
+
+    @property
+    def showxml(self):
+        return self._showxml
+
+    @showxml.setter
+    def showxml(self, showxml):
+        self._showxml = showxml

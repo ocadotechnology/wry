@@ -25,7 +25,7 @@ See [Wikipedia](https://en.wikipedia.org/wiki/Intel_Active_Management_Technology
 Wry's functionality is exposed through the AMTDevice class. Initialize it as such:
 
     >>> from wry import AMTDevice
-    >>> dev = AMTDevice(address, 'http', username, password)
+    >>> dev = AMTDevice(address, False, username, password)
 
 You can then access different apects of device functionality, through aspect-specific namespaces. For example:
 

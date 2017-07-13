@@ -33,7 +33,7 @@ class Test(TestBase.TestBase):
 
 # This not only tests the supportedMedia method but also the enumerate workflow
     def testSupportedMedia(self):
-        'Test supported media'
+        'Supported media'
         self.expectXML = [
             """<?xml version="1.0" encoding="UTF-8"?>
 <s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"
@@ -130,7 +130,7 @@ class Test(TestBase.TestBase):
         self.assertIn("CD/DVD", response)
 
     def testSetMedium(self):
-        'Test setting the next boot device'
+        'Setting the next boot device'
         self.expectXML = [
             """<?xml version="1.0" encoding="UTF-8"?>
 <s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"

@@ -13,6 +13,7 @@
 # under the License.
 
 import wsmanModule
+import json
 
 '''
 Created on 4 Jul 2017
@@ -84,6 +85,7 @@ class AMTKVM(wsmanModule.wsmanModule):
         'kvmRedirectionSap': 'CIM_KVMRedirectionSAP',
         'kvmRedirectionSettingData': 'IPS_KVMRedirectionSettingData',
         'redirectionService': 'AMT_RedirectionService',
+        'tlsSettingData': 'AMT_TLSSettingData',
     }
 
     @property
@@ -112,25 +114,17 @@ class AMTKVM(wsmanModule.wsmanModule):
             state = requested_state
         )
 
-#    @property
-#    def enabled_ports(self):
-#        '''Tells you (and/or allows you to set) the enabled ports for VNC.'''
-#
-#        def iadd(values):
-#            self.enabled_ports = self.enabled_ports.enabled + values
-#
-#        def isub(values):
-#            self.enabled_ports = set(self.enabled_ports.values) - set(values)
-#
-#        ports = EnablementMap(5900, 16994, 16995, iadd = iadd, isub = isub)
-#
-#        if self.get('IPS_KVMRedirectionSettingData', 'Is5900PortEnabled'):
-#            ports.toggle(5900)
-#        if self.get('AMT_RedirectionService', 'ListenerEnabled'):
-#            ports.toggle(16994)
-#            if self.walk('AMT_TLSSettingData')['AMT_TLSSettingData'][0]['Enabled']:
-#                ports.toggle(16995)
-#        return ports
+    @property
+    def enabled_ports(self):
+        '''Tells you (and/or allows you to set) the enabled ports for VNC.'''
+        ports = set()
+        if self.RESOURCES['kvmRedirectionSettingData'].get('Is5900PortEnabled'):
+            ports.add(5900)
+        if self.RESOURCES['redirectionService'].get('ListenerEnabled'):
+            ports.add(16994)
+            if self.RESOURCES['tlsSettingData'].enumerate()['AMT_TLSSettingData'][0]['Enabled']:
+                ports.add(16995)
+        return ports
 #
 #    @enabled_ports.setter
 #    def enabled_ports(self, values):

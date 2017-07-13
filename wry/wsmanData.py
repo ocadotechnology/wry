@@ -126,6 +126,7 @@ RESOURCE_METHODS = {
     'AMT_TLSSettingData': {
         'get': '',
         'put': '',
+        'enumerate': '',
     },
     'AMT_BootCapabilities': {
         'get': '',

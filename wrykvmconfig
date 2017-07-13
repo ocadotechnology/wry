@@ -35,7 +35,7 @@ import wry.CLITool
 __all__ = []
 __version__ = wry.version.__VERSION__
 __date__ = '2017-07-04'
-__updated__ = '2017-07-12'
+__updated__ = '2017-07-13'
 
 
 class wrykvmconfig(wry.CLITool.CLITool):
@@ -46,11 +46,19 @@ class wrykvmconfig(wry.CLITool.CLITool):
     build_date = str(__updated__)
 
     def extra_init(self):
-        self.parser.add_argument("-k", "--kvm-enable", action = "store_true", dest = "kvmenable", help = "Enable or disable RFB KVM access on port 5900. [default: %(default)s]", default = False)
+        self.parser.add_argument("-k", "--kvm-enable", dest = "kvmenable", help = "Enable or disable RFB KVM access on port 5900. [default: %(default)s]", metavar = "True/False", default = None)
         self.parser.add_argument("-K", "--kvm-password", dest = "kvmpassword", help = "Set the RFB KVM password", metavar = "KVM Password")
 
     def extra_parse(self, args):
-        self.kvmenable = args.kvmenable
+        if args.kvmenable == None:
+            self.kvmenable = None
+        elif args.kvmenable.upper() == "TRUE":
+            args.kvmenable = True
+        elif args.kvmenable.upper() == "FALSE":
+            args.kvmenable = False
+        else:
+            self.kvmenable = None
+            raise Exception("--kvm-enable parameter must be True or False")
         self.kvmpassword = args.kvmpassword
         if self.kvmpassword != None:
             self.kvmenable = True
@@ -58,13 +66,15 @@ class wrykvmconfig(wry.CLITool.CLITool):
             raise Exception("Invalid ")
 
     def extra_run(self):
-        self.dev.kvm.enabled = self.kvmenable
-        if self.kvmpassword != None:
-            self.dev.kvm.password = self.kvmpassword
-        self.dev.kvm.consent_required = None
-        self.dev.kvm.port_5900_enabled = self.kvmenable
-        self.dev.kvm.opt_in_timeout = None
-        self.dev.kvm.session_timeout = 20
+        if self.kvmenable != None:
+            self.dev.kvm.enabled = self.kvmenable
+            if self.kvmpassword != None:
+                self.dev.kvm.password = self.kvmpassword
+            self.dev.kvm.consent_required = None
+            self.dev.kvm.port_5900_enabled = self.kvmenable
+            self.dev.kvm.opt_in_timeout = None
+            self.dev.kvm.session_timeout = 20
+        print "Enabled ports:", self.dev.kvm.enabled_ports
         return 0
 
 

@@ -42,7 +42,7 @@ AMT_REDIRECTION_STATE_MAP = {
 
 class AMTRedirection(wsmanModule.wsmanModule):
     '''Control over Serial-over-LAN and storage redirection.'''
-    RESOURCES = {
+    _RESOURCES = {
         'redirectionService': 'AMT_RedirectionService',
     }
 

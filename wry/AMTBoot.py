@@ -24,7 +24,7 @@ Created on 4 Jul 2017
 class AMTBoot(wsmanModule.wsmanModule):
     '''Control how the machine will boot next time.'''
 
-    RESOURCES = {
+    _RESOURCES = {
         'bootSourceSetting': 'CIM_BootSourceSetting',
         'bootService': 'CIM_BootService',
         'bootSettingData': 'AMT_BootSettingData',

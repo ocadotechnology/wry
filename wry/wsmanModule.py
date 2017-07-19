@@ -24,25 +24,25 @@ class wsmanModule(object):
     '''
     Base class for all wry modules
     '''
-    RESOURCES = {
+    _RESOURCES = {
     }
 
     def __init__(self, device):
         '''
         Create resources for each defined resource
         '''
-        for k in self.RESOURCES.keys():
-            if type(self.RESOURCES[k]) == type(""):
-                self.RESOURCES[k] = wsmanResource.wsmanResource(
-                    target = device.target,
-                    is_ssl = device.is_ssl,
-                    username = device.username,
-                    password = device.password,
-                    resource = self.RESOURCES[k],
-                    debug = device.debug,
-                    showxml = device.showxml,
-                )
+        self.RESOURCES = {}
         self._debug = device.debug
+        for k in self._RESOURCES.keys():
+            self.RESOURCES[k] = wsmanResource.wsmanResource(
+                target = device.target,
+                is_ssl = device.is_ssl,
+                username = device.username,
+                password = device.password,
+                resource = self._RESOURCES[k],
+                debug = device.debug,
+                showxml = device.showxml,
+            )
 
     @property
     def debug(self):
@@ -51,6 +51,8 @@ class wsmanModule(object):
     @debug.setter
     def debug(self, debug):
         self._debug = debug
+        for k in self.RESOURCES.keys():
+            self.RESOURCES[k].debug = debug
 
     @property
     def showxml(self):

@@ -44,7 +44,7 @@ AMT_POWER_STATE_MAP = {
 
 class AMTPower(wsmanModule.wsmanModule):
     '''Control over a device's power state.'''
-    RESOURCES = {
+    _RESOURCES = {
         'power': 'CIM_PowerManagementService',
         'aux': 'CIM_AssociatedPowerManagementService',
     }

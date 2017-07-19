@@ -39,7 +39,7 @@ OPT_IN_STATE = {
 
 class AMTOptIn(wsmanModule.wsmanModule):
     '''Manage user consent and opt-in codes.'''
-    RESOURCES = {
+    _RESOURCES = {
         'optInService': 'IPS_OptInService',
     }
 

@@ -81,7 +81,7 @@ AMT_KVM_ENABLEMENT_MAP = {
 
 class AMTKVM(wsmanModule.wsmanModule):
     '''Control over a device's KVM (VNC) functionality.'''
-    RESOURCES = {
+    _RESOURCES = {
         'kvmRedirectionSap': 'CIM_KVMRedirectionSAP',
         'kvmRedirectionSettingData': 'IPS_KVMRedirectionSettingData',
         'redirectionService': 'AMT_RedirectionService',

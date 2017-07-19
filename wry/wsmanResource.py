@@ -75,6 +75,8 @@ class wsmanResource(object):
             print "================="
         for _ in range(wsmanData.CONNECT_RETRIES + 1):
             try:
+                if self.debug:
+                    print "Connecting to %s" % (self.target,)
                 resp = requests.post(
                     self.target,
                     timeout = (2, 1),

@@ -2,3 +2,5 @@
 *.pyc
 /.eggs
 /wry.egg-info
+/build
+/dist

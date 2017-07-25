@@ -1,3 +1,2 @@
 requests
 xmltodict >= 0.7
-gitversion >= 2.1.1

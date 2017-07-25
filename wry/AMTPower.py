@@ -58,7 +58,7 @@ class AMTPower(wsmanModule.wsmanModule):
             headerSelectorType = "Name",
             headerSelector = 'Intel(r) AMT Power Management Service',
             power_state = power_state,
-        )
+        )['RequestPowerStateChange_OUTPUT']['ReturnValue']
 
     @property
     def state(self):
@@ -73,7 +73,7 @@ class AMTPower(wsmanModule.wsmanModule):
 
     def turn_on(self):
         '''Turn on the device.'''
-        self.request_power_state_change(2)
+        return self.request_power_state_change(2)
 
     def turn_off(self):
         '''Turn off the device.'''

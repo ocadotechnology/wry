@@ -4,5 +4,6 @@ python:
 cache: pip
 install:
   - pip install -r requirements.txt
+  - pip install -r build-requirements.pip
 script:
   - python -m unittest discover -v tests

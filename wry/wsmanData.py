@@ -25,6 +25,8 @@ I'm afraid we just string-bash the XML into submission here.
 
 CONNECT_RETRIES = 3 # Number of times to retry a WSMan connection
 
+CONNECT_DELAY = 0.25 # Number of seconds between retries
+
 
 _NAMESPACES = {
     'soap':                 'http://www.w3.org/2003/05/soap-envelope',

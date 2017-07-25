@@ -94,7 +94,7 @@ class wsmanResource(object):
             except requests.exceptions.ConnectTimeout:
                 if self.debug:
                     print("Failed, retrying")
-                sleep(.1)
+                sleep(wsmanData.CONNECT_DELAY)
             except:
                 raise
 

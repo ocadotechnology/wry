@@ -1,4 +1,4 @@
-# Wry
+# Wry [![Build Status](https://travis-ci.org/ocadotechnology/wry.svg?branch=master)](https://travis-ci.org/ocadotechnology/wry)
 
 A Pythonic AMT provisioning, configuration and management library.
 

@@ -12,6 +12,5 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from gitversion import rewritable_git_version
-__VERSION__ = rewritable_git_version(__file__)
+__VERSION__ = "1.0-pre1"
 

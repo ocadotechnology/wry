@@ -17,6 +17,7 @@ import AMTPower
 import AMTKVM
 import AMTOptIn
 import AMTRedirection
+import AMTEthernet
 import wsmanData
 import WryDict
 import wsmanResource
@@ -52,6 +53,7 @@ class AMTDevice(object):
         self.kvm = AMTKVM.AMTKVM(self)
         self.opt_in = AMTOptIn.AMTOptIn(self)
         self.redirection = AMTRedirection.AMTRedirection(self)
+        self.eth = AMTEthernet.AMTEthernet(self)
 
     @property
     def debug(self):

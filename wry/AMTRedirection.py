@@ -14,12 +14,6 @@
 
 import wsmanModule
 
-'''
-Created on 5 Jul 2017
-
-@author: adrian
-'''
-
 AMT_REDIRECTION_STATE_MAP = {
     0: 'Unknown',
     1: 'Other',

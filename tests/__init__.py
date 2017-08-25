@@ -15,12 +15,6 @@
 import unittest
 import os.path
 
-'''
-Created on 12 Jul 2017
-
-@author: adrian
-'''
-
 if __name__ == '__main__':
     print "Running"
     suite = unittest.TestLoader().discover(

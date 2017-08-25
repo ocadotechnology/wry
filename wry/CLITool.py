@@ -18,12 +18,6 @@ import wry
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 
-'''
-Created on 12 Jul 2017
-
-@author: adrian
-'''
-
 class CLITool(object):
     '''
     Base class for all wry CLI tools.

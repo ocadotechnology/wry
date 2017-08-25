@@ -22,12 +22,6 @@ import wsmanData
 import WryDict
 import wsmanResource
 
-'''
-Created on 4 Jul 2017
-
-@author: adrian
-'''
-
 class AMTDevice(object):
     '''A wrapper class which packages AMT functionality into an accessible, device-centric format.'''
 

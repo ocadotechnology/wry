@@ -18,12 +18,6 @@ import requests
 import WryDict
 from time import sleep
 
-'''
-Created on 10 Jul 2017
-
-@author: adrian
-'''
-
 class wsmanResource(object):
     '''
     Class to represent a resource on a wsman compatible server

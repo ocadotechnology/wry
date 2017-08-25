@@ -14,13 +14,6 @@
 
 import wsmanModule
 
-'''
-Created on 5 Jul 2017
-
-@author: adrian
-'''
-
-
 CONSENT_MAPPING = {
     0: None,
     1: 'KVM',

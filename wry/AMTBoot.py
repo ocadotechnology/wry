@@ -14,13 +14,6 @@
 
 import wsmanModule
 
-'''
-Created on 4 Jul 2017
-
-@author: adrian
-'''
-
-
 class AMTBoot(wsmanModule.wsmanModule):
     '''Control how the machine will boot next time.'''
 

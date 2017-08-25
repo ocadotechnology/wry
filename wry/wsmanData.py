@@ -13,13 +13,9 @@
 # under the License.
 
 '''
-Created on 6 Jul 2017
-
 A simple class for accessing wsman style management interfaces like AMT
 
 I'm afraid we just string-bash the XML into submission here.
-
-@author: adrian
 '''
 
 

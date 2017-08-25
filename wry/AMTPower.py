@@ -14,12 +14,6 @@
 
 import wsmanModule
 
-'''
-Created on 4 Jul 2017
-
-@author: adrian
-'''
-
 AMT_POWER_STATE_MAP = {
     0:  (None, None),
     1:  ('other', None),

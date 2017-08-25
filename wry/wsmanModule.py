@@ -14,12 +14,6 @@
 
 import wsmanResource
 
-'''
-Created on 10 Jul 2017
-
-@author: adrian
-'''
-
 class wsmanModule(object):
     '''
     Base class for all wry modules

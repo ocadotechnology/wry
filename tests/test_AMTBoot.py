@@ -14,12 +14,6 @@
 
 import TestBase
 import wry
-'''
-Created on 10 Jul 2017
-
-@author: adrian
-'''
-
 
 class Test(TestBase.TestBase):
     def setUp(self):

@@ -20,12 +20,6 @@ parent = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, parent)
 import requests
 
-'''
-Created on 10 Jul 2017
-
-@author: adrian
-'''
-
 class DEVICE:
     '''
     Simple class to provide the data normally provided by AMTDevice
@@ -53,6 +47,7 @@ class TestBase(unittest.TestCase):
     '''
 
     UUID = re.compile("uuid:.{36}")
+    PRINT_DATA = False # Print the conversation to enable debugging failing tests
 
     def setUp(self):
         '''
@@ -69,11 +64,13 @@ class TestBase(unittest.TestCase):
         Check request and send response as though it was a network connection
         '''
         req = self.expectXML.pop(0)
-#        print len(data)
+        if self.PRINT_DATA:
+            print len(data)
         data = self.UUID.sub("uuid:", data)
-#        print len(data)
-#        print len(req)
-        #print data, "\n=========\n", req , "\n==========\n", len(data), len(req)
+        if self.PRINT_DATA:
+            print len(data)
+            print len(req)
+            print data, "\n=========\n", req , "\n==========\n", len(data), len(req)
         self.assertEqual(data, req, "Request does not match")
         resp = self.respondXML.pop(0)
         return RESPONSE(resp)

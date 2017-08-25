@@ -13,70 +13,12 @@
 # under the License.
 
 import wsmanModule
-import json
-
-'''
-Created on 4 Jul 2017
-
-@author: adrian
-'''
 
 AMT_KVM_ENABLEMENT_MAP = {
     2: (True, 'Enabled In Use'),
     6: (True, 'Enabled'),
     3: (False, 'Disabled'),
 }
-
-
-#class EnablementMap(object):
-#    '''TODO: Refactor this to just be a dict. It should simplify things a lot.'''
-#    def __init__(self, *values, **options):
-#        # Make this take ONE ARRAY of values...
-#        ''' Might want to stop people providing None.'''
-#        self.values = values
-#        self.options = options
-#        self._enabled_values = []
-#
-#    def __repr__(self):
-#        return 'EnablementMap(%s)' % ', '.join(
-#                ['%s: %s' % (value.__repr__(), value in self.options) for value in self.values]
-#        )
-#
-#    def __str__(self):
-#        return self.__repr__()
-#
-#    def __iadd__(self, value):
-#        try:
-#            self.options['iadd'](value)
-#        except (KeyError, TypeError):
-#            raise AttributeError('No iadd function specified.')
-#
-#    def __isub__(self, value):
-#        try:
-#            self.options['isub'](value)
-#        except (KeyError, TypeError):
-#            raise AttributeError('No isub function specified.')
-#
-#    def toggle(self, value):
-#        if value not in self.values:
-#            raise TypeError('%r is an invalid value. Choose one of %r.' % (value, self.values))
-#        try:
-#            self._enabled_values.remove(value)
-#        except ValueError:
-#            self._enabled_values.append(value)
-#
-#    @property
-#    def enabled(self):
-#        return self._enabled_values
-#
-#    @enabled.setter
-#    def enabled(self, values):
-#        to_set = []
-#        for value in values:
-#            if value not in self.values:
-#                raise TypeError('%r is an invalid value. Choose one of %r.' % (value, self.values))
-#            to_set.append(value)
-#        self._enabled_values = to_set
 
 
 class AMTKVM(wsmanModule.wsmanModule):
@@ -125,32 +67,6 @@ class AMTKVM(wsmanModule.wsmanModule):
             if self.RESOURCES['tlsSettingData'].enumerate()['AMT_TLSSettingData'][0]['Enabled']:
                 ports.add(16995)
         return ports
-#
-#    @enabled_ports.setter
-#    def enabled_ports(self, values):
-#        ports = self.enabled_ports.values
-#        enabled = self.enabled_ports.enabled
-#        print 'values: ', values
-#        print 'ports: ', ports
-#        # Validation:
-#        invalid = list(set(values) - set(ports))
-#        if invalid:
-#            raise ValueError('Invalid port(s) specified: %r. Valid ports are %r.'
-#                % (invalid, ports))
-#        if 16995 in values and 16995 not in enabled:
-#            if 16994 not in values:
-#                raise ValueError('Port 16995 cannot be enabled unless port 16994 is enabled also.')
-#            else:
-#                if not self.walk('AMT_TLSSettingData')['AMT_TLSSettingData'][0]['Enabled']:
-#                    raise ValueError('Port 16995 can only be set by enabling both TLS and port 16994.')
-#        # Setter logic:
-#        for port, enable in [(port, port in values) for port in ports]:
-#            if (enable and port not in enabled) or (not enable and port in enabled):
-#                if port == 5900:
-#                    self.put('IPS_KVMRedirectionSettingData', {'Is5900PortEnabled': enable})
-#                elif port == 16994:
-#                    self.put('AMT_RedirectionService', {'ListenerEnabled': enable})
-#                self.enabled_ports.toggle(port)
 
     @property
     def port_5900_enabled(self):

@@ -14,12 +14,6 @@
 
 import wsmanModule
 
-'''
-Created on 23 Aug 2017
-
-@author: adrian
-'''
-
 class AMTEthernet(wsmanModule.wsmanModule):
     ''' Return details about the device's ethernet port(s) '''
     _RESOURCES = {

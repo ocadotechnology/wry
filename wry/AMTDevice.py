@@ -108,5 +108,4 @@ class AMTDevice(object):
         messages = ['# Could not dump %s' % name for name in impossible]
         if as_json:
             return '\n'.join(messages) + '\n' + output.as_json()
-        print '\n'.join(messages)
         return output

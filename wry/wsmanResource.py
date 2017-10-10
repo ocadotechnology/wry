@@ -32,6 +32,8 @@ class wsmanResource(object):
         @param resource: the identifier of the resource containing the settings we are interested in
         @param username: the username to log in with
         @param password: the password to log in with
+        @param debug: enable debugging output
+        @param showxml: enable output of XML transactions
         '''
         if is_ssl:
             scheme = 'https'
@@ -64,9 +66,9 @@ class wsmanResource(object):
         else:
             doc = doc % params
         if self.showxml:
-            print "==== Request ===="
+            print "===== Request ====="
             print doc
-            print "================="
+            print "==================="
         for _ in range(wsmanData.CONNECT_RETRIES + 1):
             try:
                 if self.debug:
@@ -80,9 +82,9 @@ class wsmanResource(object):
                     allow_redirects = False,
                 )
                 if self.showxml:
-                    print "==== Response ===="
+                    print "===== Response ====="
                     print resp.content
-                    print "=================="
+                    print "===================="
                 resp.raise_for_status()
                 return WryDict.WryDict.from_xml(resp.content)
             except requests.exceptions.ConnectTimeout:

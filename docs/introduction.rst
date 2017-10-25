@@ -28,5 +28,5 @@ Tested on the following hardware/firmware:
 License
 +++++++
 
-Apache. (C) 2015 Ocado Innovation Ltd. Please see the :download:`LICENSE <../LICENSE>` and :download:`NOTICE <../NOTICE>` files.
+Apache. (C) 2015-2017 Ocado Innovation Ltd. Please see the :download:`LICENSE <../LICENSE>` and :download:`NOTICE <../NOTICE>` files.
 

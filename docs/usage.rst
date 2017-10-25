@@ -11,39 +11,29 @@ In-Depth
 
 As well as the above, the AMTDevice class provides more genearlized/low-level functionality.
 
-If you wish to access the pure pywsman client object, it is available as ``dev.client``.
-
-
-.. .. automodule:: wry.device
-    :members:
-
 .. autoclass:: wry.AMTDevice
     :members:
 
-.. .. autoclass:: wry.device.DeviceCapability
+.. autoclass:: wry.AMTPower
     :members:
 
-.. autodata:: wry.device.AMT_POWER_STATE_MAP
-   :annotation:
-
-.. autoclass:: wry.device.StateMap
+.. autoclass:: wry.AMTKVM
     :members:
 
-.. autoclass:: wry.device.AMTPower
+.. autoclass:: wry.AMTBoot
     :members:
 
-.. autoclass:: wry.device.AMTKVM
+.. autoclass:: wry.AMTOptIn
     :members:
 
-.. autoclass:: wry.device.AMTBoot
+.. autoclass:: wry.AMTRedirection
     :members:
 
-.. .. automodule:: wry.common
+.. .. automodule:: wry.wsmanResource
     :members:
 
-.. .. automodule:: wry.data_structures
+.. .. automodule:: wry.wsmanModule
     :members:
-
-.. .. automodule:: wry.decorators
+    
+.. .. automodule:: wry.wsmanData
     :members:
-

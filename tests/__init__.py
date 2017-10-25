@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -10,30 +12,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import unittest
+import os.path
 
-
-class WSManFault(Exception):
-    def __init__(self, doc):
-        self.doc = doc
-        self.message = doc.fault().reason()
-        self.detail = doc.fault().detail()
-        self.subcode = doc.fault().subcode()
-    def __str__(self):
-        return self.message
-
-
-class NonZeroReturn(Exception):
-    pass
-
-
-class AMTConnectFailure(Exception):
-    pass
-
-
-class XMLParseError(Exception):
-    pass
-
-
-class NoSupportedMethods(Exception):
-    pass
-
+if __name__ == '__main__':
+    print "Running"
+    suite = unittest.TestLoader().discover(
+        start_dir = os.path.dirname(os.path.abspath(__file__)),
+        pattern = "test_*.py",
+        top_level_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    )
+    unittest.TextTestRunner().run(suite)

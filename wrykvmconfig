@@ -1,0 +1,82 @@
+#!/usr/bin/env python2
+
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+# encoding: utf-8
+'''
+wrykvmconfig -- Configure The KVM On A Machine
+
+wrykvmconfig is a tool to enable or disable the RFB KVM port on a machine and
+set the RFB KVM password
+
+@author:     Adrian Hungate
+
+@copyright:  2017 Ocado Technology. All rights reserved.
+
+@license:    Apache 2.0
+
+@contact:    adrian.hungate@ocado.com
+'''
+
+import sys
+import wry.version
+import wry.CLITool
+
+__all__ = []
+__version__ = wry.version.__VERSION__
+__date__ = '2017-07-04'
+__updated__ = '2017-07-13'
+
+
+class wrykvmconfig(wry.CLITool.CLITool):
+    '''
+    CLI tool to configure KVM settings
+    '''
+    version = "v%s" % __version__
+    build_date = str(__updated__)
+
+    def extra_init(self):
+        self.parser.add_argument("-k", "--kvm-enable", dest = "kvmenable", help = "Enable or disable RFB KVM access on port 5900. [default: %(default)s]", metavar = "True/False", default = None)
+        self.parser.add_argument("-K", "--kvm-password", dest = "kvmpassword", help = "Set the RFB KVM password", metavar = "KVM Password")
+
+    def extra_parse(self, args):
+        if args.kvmenable == None:
+            self.kvmenable = None
+        elif args.kvmenable.upper() == "TRUE":
+            args.kvmenable = True
+        elif args.kvmenable.upper() == "FALSE":
+            args.kvmenable = False
+        else:
+            self.kvmenable = None
+            raise Exception("--kvm-enable parameter must be True or False")
+        self.kvmpassword = args.kvmpassword
+        if self.kvmpassword != None:
+            self.kvmenable = True
+        if self.kvmenable and self.kvmpassword == None:
+            raise Exception("Invalid ")
+
+    def extra_run(self):
+        if self.kvmenable != None:
+            self.dev.kvm.enabled = self.kvmenable
+            if self.kvmpassword != None:
+                self.dev.kvm.password = self.kvmpassword
+            self.dev.kvm.consent_required = None
+            self.dev.kvm.port_5900_enabled = self.kvmenable
+            self.dev.kvm.opt_in_timeout = None
+            self.dev.kvm.session_timeout = 20
+        print "Enabled ports:", self.dev.kvm.enabled_ports
+        return 0
+
+
+if __name__ == "__main__":
+    sys.exit(wrykvmconfig().run())

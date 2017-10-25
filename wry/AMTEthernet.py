@@ -12,5 +12,23 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-__VERSION__ = "1.0"
+import wsmanModule
 
+class AMTEthernet(wsmanModule.wsmanModule):
+    ''' Return details about the device's ethernet port(s) '''
+    _RESOURCES = {
+        'eth': 'AMT_EthernetPortSettings',
+    }
+
+    @property
+    def state(self):
+        '''
+        A property which returns the primary ethernet port settings
+        '''
+        response = self.RESOURCES['eth'].get()
+        return response
+
+    @property
+    def mac(self):
+        response = self.RESOURCES['eth'].get(setting = 'MACAddress')
+        return response

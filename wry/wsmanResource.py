@@ -18,6 +18,7 @@ import requests
 import WryDict
 from time import sleep
 
+
 class wsmanResource(object):
     '''
     Class to represent a resource on a wsman compatible server
@@ -75,7 +76,7 @@ class wsmanResource(object):
                     print "Connecting to %s" % (self.target,)
                 resp = requests.post(
                     self.target,
-                    timeout = (2, 1),
+                    timeout = (0.1, 5),
                     headers = {'content-type': 'application/soap+xml;charset=UTF-8'},
                     auth = requests.auth.HTTPDigestAuth(self.username, self.password),
                     data = doc,
@@ -87,12 +88,10 @@ class wsmanResource(object):
                     print "===================="
                 resp.raise_for_status()
                 return WryDict.WryDict.from_xml(resp.content)
-            except requests.exceptions.ConnectTimeout:
+            except:
                 if self.debug:
                     print("Failed, retrying")
                 sleep(wsmanData.CONNECT_DELAY)
-            except:
-                raise
 
     def get(self, setting = '', **kwargs):
         '''

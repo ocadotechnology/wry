@@ -21,9 +21,13 @@ import AMTEthernet
 import wsmanData
 import WryDict
 import wsmanResource
+import wsmanModule
 
-class AMTDevice(object):
+class AMTDevice(wsmanModule.wsmanModule):
     '''A wrapper class which packages AMT functionality into an accessible, device-centric format.'''
+    _RESOURCES = {
+        'software': 'CIM_SystemBIOS',
+    }
 
     def __init__(self, target = None, is_ssl = True, username = None, password = None, debug = False, showxml = False):
         '''

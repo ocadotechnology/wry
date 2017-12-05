@@ -19,7 +19,7 @@ I'm afraid we just string-bash the XML into submission here.
 '''
 
 
-CONNECT_RETRIES = 3 # Number of times to retry a WSMan connection
+CONNECT_RETRIES = 0 # Number of times to retry a WSMan connection
 
 CONNECT_DELAY = 0.25 # Number of seconds between retries
 
@@ -59,7 +59,8 @@ RESOURCE_METHODS = {
 ''' % _NAMESPACES,
     },
     'CIM_ComputerSystem': {
-        'get': ''
+        'get': '',
+        'enumerate': '',
     },
     'CIM_BootConfigSetting': {
         'get': '',
@@ -140,6 +141,12 @@ RESOURCE_METHODS = {
     'AMT_GeneralSettings': {
         'get': '',
         'put': '',
+    },
+    'CIM_Chassis' : {
+        'enumerate': '',
+    },
+    'CIM_SystemBIOS' : {
+        'get': '',
     },
 }
 

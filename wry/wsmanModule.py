@@ -27,6 +27,7 @@ class wsmanModule(object):
         '''
         self.RESOURCES = {}
         self._debug = device.debug
+        self._showxml = device.showxml
         for k in self._RESOURCES.keys():
             self.RESOURCES[k] = wsmanResource.wsmanResource(
                 target = device.target,
@@ -55,3 +56,5 @@ class wsmanModule(object):
     @showxml.setter
     def showxml(self, showxml):
         self._showxml = showxml
+        for k in self.RESOURCES.keys():
+            self.RESOURCES[k].showxml = showxml

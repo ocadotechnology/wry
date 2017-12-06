@@ -26,7 +26,7 @@ import wsmanModule
 class AMTDevice(wsmanModule.wsmanModule):
     '''A wrapper class which packages AMT functionality into an accessible, device-centric format.'''
     _RESOURCES = {
-        'software': 'CIM_SystemBIOS',
+        'bios': 'CIM_SystemBIOS',
     }
 
     def __init__(self, target = None, is_ssl = True, username = None, password = None, debug = False, showxml = False):
@@ -52,6 +52,7 @@ class AMTDevice(wsmanModule.wsmanModule):
         self.opt_in = AMTOptIn.AMTOptIn(self)
         self.redirection = AMTRedirection.AMTRedirection(self)
         self.eth = AMTEthernet.AMTEthernet(self)
+        wsmanModule.wsmanModule.__init__(self, self)
 
     @property
     def debug(self):
@@ -78,6 +79,14 @@ class AMTDevice(wsmanModule.wsmanModule):
         self.kvm.showxml = showxml
         self.opt_in.showxml = showxml
         self.redirection.showxml = showxml
+
+    @property
+    def bios(self):
+        '''
+        A property which returns the BIOS identifiers (for the code, not settings)
+        '''
+        response = self.RESOURCES['bios'].get()
+        return response
 
     def dump(self, as_json = True):
         '''

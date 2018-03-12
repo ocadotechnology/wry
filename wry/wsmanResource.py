@@ -73,7 +73,7 @@ class wsmanResource(object):
         for _ in range(wsmanData.CONNECT_RETRIES + 1):
             try:
                 if self.debug:
-                    print "Connecting to %s" % (self.target,)
+                    print("Connecting to %s" % (self.target,))
                 resp = requests.post(
                     self.target,
                     timeout = (0.1, 5),
@@ -83,9 +83,9 @@ class wsmanResource(object):
                     allow_redirects = False,
                 )
                 if self.showxml:
-                    print "===== Response ====="
-                    print resp.content
-                    print "===================="
+                    print("===== Response =====")
+                    print(resp.content)
+                    print("====================")
                 resp.raise_for_status()
                 return WryDict.WryDict.from_xml(resp.content)
             except:

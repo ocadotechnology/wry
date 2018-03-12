@@ -47,15 +47,15 @@ class wrynetboot(wry.CLITool.CLITool):
 
     def extra_init(self):
         #self.parser.add_argument("-S", "--state", dest = "state", help = "set a new power state", default = None)
-	pass
+        pass
 
     def extra_parse(self, args):
         #self.state = args.state
-	pass
+        pass
 
     def extra_run(self):
-	state = self.dev.eth.mac
-        print "State:", state
+        state = self.dev.eth.mac
+        print("State:", state)
         return 0
 
 

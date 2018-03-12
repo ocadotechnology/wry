@@ -12,16 +12,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import AMTBoot
-import AMTPower
-import AMTKVM
-import AMTOptIn
-import AMTRedirection
-import AMTEthernet
-import wsmanData
-import WryDict
-import wsmanResource
-import wsmanModule
+from . import AMTBoot
+from . import AMTPower
+from . import AMTKVM
+from . import AMTOptIn
+from . import AMTRedirection
+from . import AMTEthernet
+from . import wsmanData
+from . import WryDict
+from . import wsmanResource
+from . import wsmanModule
 
 class AMTDevice(wsmanModule.wsmanModule):
     '''A wrapper class which packages AMT functionality into an accessible, device-centric format.'''

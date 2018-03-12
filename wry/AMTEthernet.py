@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import wsmanModule
+from . import wsmanModule
 
 class AMTEthernet(wsmanModule.wsmanModule):
     ''' Return details about the device's ethernet port(s) '''

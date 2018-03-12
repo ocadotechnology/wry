@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import wsmanModule
+from . import wsmanModule
 
 AMT_POWER_STATE_MAP = {
     0:  (None, None),

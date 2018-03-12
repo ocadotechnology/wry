@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 import json
 
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -35,7 +35,7 @@ import wry.CLITool
 __all__ = []
 __version__ = wry.version.__VERSION__
 __date__ = '2017-08-23'
-__updated__ = '2017-08-23'
+__updated__ = '2018-03-12'
 
 
 class wrynetboot(wry.CLITool.CLITool):

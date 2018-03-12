@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 import json
 
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,10 +15,9 @@ import json
 
 # encoding: utf-8
 '''
-wrynetboot -- PXE Boot an AMT machine
+wrypower -- Change machine power state
 
-wrynetboot is a tool to cause an AMT machine to restart and boot from a
-network boot server
+wrypower is a tool to cause an AMT machine to turn on, off or reboot
 
 @author:     Adrian Hungate
 
@@ -36,7 +35,7 @@ import wry.CLITool
 __all__ = []
 __version__ = wry.version.__VERSION__
 __date__ = '2017-07-04'
-__updated__ = '2017-07-12'
+__updated__ = '2018-03-12'
 
 
 class wrynetboot(wry.CLITool.CLITool):
@@ -53,8 +52,8 @@ class wrynetboot(wry.CLITool.CLITool):
         self.state = args.state
 
     def extra_run(self):
-        print "Current power state:", self.dev.power.state
-        print "Available states:", self.dev.power.available_states()
+        print("Current power state:", self.dev.power.state)
+        print("Available states:", self.dev.power.available_states())
         if self.state != None:
             try:
                 self.dev.power.request_power_state_change(int(self.state))
@@ -66,7 +65,7 @@ class wrynetboot(wry.CLITool.CLITool):
                 elif self.state == "reset":
                     self.dev.power.reset()
                 else:
-                    print "I do not know how to '%s' the power" % (self.state,)
+                    print("I do not know how to '%s' the power" % (self.state,))
         return 0
 
 

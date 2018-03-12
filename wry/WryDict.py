@@ -16,7 +16,7 @@ import xmltodict
 import json
 from ast import literal_eval
 from collections import OrderedDict
-import wsmanData
+from . import wsmanData
 
 """
 Wry data structures and helpers.

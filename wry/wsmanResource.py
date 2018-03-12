@@ -12,10 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import wsmanData
+from . import wsmanData
 import uuid
 import requests
-import WryDict
+from . import WryDict
 from time import sleep
 
 
@@ -67,9 +67,9 @@ class wsmanResource(object):
         else:
             doc = doc % params
         if self.showxml:
-            print "===== Request ====="
-            print doc
-            print "==================="
+            print("===== Request =====")
+            print(doc)
+            print("===================")
         for _ in range(wsmanData.CONNECT_RETRIES + 1):
             try:
                 if self.debug:

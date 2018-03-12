@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import wsmanModule
+from . import wsmanModule
 
 AMT_KVM_ENABLEMENT_MAP = {
     2: (True, 'Enabled In Use'),

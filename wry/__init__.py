@@ -12,13 +12,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import version
-import AMTDevice
-import AMTBoot
-import AMTPower
-import AMTKVM
-import AMTOptIn
-import AMTRedirection
+from . import version
+from . import AMTDevice
+from . import AMTBoot
+from . import AMTPower
+from . import AMTKVM
+from . import AMTOptIn
+from . import AMTRedirection
 
 AMTDevice = AMTDevice.AMTDevice
 AMTBoot = AMTBoot.AMTBoot

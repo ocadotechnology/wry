@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -100,7 +98,7 @@ class wsmanResource(object):
         @param setting: the setting to get the value of (None for all in this resources)
         '''
         extraHeader = ''
-        if kwargs.has_key('headerSelector') and kwargs.has_key('headerSelectorType'):
+        if 'headerSelector' in kwargs and 'headerSelectorType' in kwargs:
             extraHeader = '<wsman:SelectorSet><wsman:Selector Name="%(headerSelectorType)s">%(headerSelector)s</wsman:Selector></wsman:SelectorSet>' % kwargs
         params = {
             'uri': self.target,
@@ -175,12 +173,13 @@ class wsmanResource(object):
             'body': self.resource_methods['enumerate'] % kwargs
         }
         enum_response = self.request(doc = wsmanData.WS_ENUM_ENVELOPE, params = params)
+        print(enum_response)
         params['enumctx'] = enum_response['EnumerateResponse']['EnumerationContext']
         params['actionUri'] = wsmanData.ACTIONS_URIS['pull']
         output = WryDict.WryDict({self.resourceId:[]})
         while params['enumctx']:
             data = self.request(doc = wsmanData.WS_PULL_ENVELOPE, params = params)
-            if not data['PullResponse'].has_key('EnumerationContext'):
+            if 'EnumerationContext' not in data['PullResponse']:
                 params['enumctx'] = None
             output[self.resourceId].append(data['PullResponse']['Items'][self.resourceId])
         return output
@@ -191,10 +190,10 @@ class wsmanResource(object):
 
         @param method: the method name to call
         '''
-        if not self.resource_methods.has_key(method):
+        if method not in self.resource_methods:
             raise Exception("Method '%s' not defined" % method)
         extraHeader = ''
-        if kwargs.has_key('headerSelectior') and kwargs.has_key('headerSelectorType'):
+        if 'headerSelector' in kwargs and 'headerSelectorType' in kwargs:
             extraHeader = '<wsman:SelectorSet><wsman:Selector Name="%(headerSelectorType)s">%(headerSelector)s</wsman:Selector></wsman:SelectorSet>' % kwargs
         params = {
             'uri': self.target,

@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -14,7 +12,6 @@
 
 import xmltodict
 import json
-from ast import literal_eval
 from collections import OrderedDict
 from . import wsmanData
 
@@ -22,6 +19,8 @@ from . import wsmanData
 Wry data structures and helpers.
 """
 
+if not(hasattr(__builtins__, "unicode")):
+    unicode = str
 
 class WryDict(OrderedDict):
     '''An OrderedDict with the ability to be generated from wman-returned XML'''
@@ -86,7 +85,7 @@ class WryDict(OrderedDict):
             if not isinstance(input_dict, dict):
                 return None
             outdict = cls()
-            for key, value in input_dict.iteritems():
+            for key, value in input_dict.items():
                 key = key.split(':')[-1]
                 value = _strip_namespace_prefixes(value) or value
                 outdict[key] = value
@@ -95,15 +94,11 @@ class WryDict(OrderedDict):
         mydict = _strip_namespace_prefixes(mydict)
         body = mydict[u'Envelope'][u'Body']
         outdict = cls()
-        for key, value in body.values()[0].iteritems():
+        for key, value in list(body.values())[0].items():
             if value in (u'true', u'false'):
                 value = value.capitalize()
-            try:
-                value = literal_eval(value)
-            except (SyntaxError, ValueError):
-                pass
             outdict[key] = value
-        self = cls({body.keys()[0]: outdict})
+        self = cls({list(body.keys())[0]: outdict})
         self._from_xml = True
         return self
 
@@ -120,7 +115,7 @@ class WryDict(OrderedDict):
             bookends = ['<{', '}>']
         else:
             bookends = ['-{', '}-']
-        for key, value in self.iteritems():
+        for key, value in self.items():
             items += '%r: %r, ' % (key, value)
         return bookends[0] + items + bookends[-1]
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -98,7 +96,7 @@ class CLITool(object):
         except KeyboardInterrupt:
             ### handle keyboard interrupt ###
             pass
-        except Exception, e:
+        except Exception as e:
             if self.debug:
                 raise
             indent = len(self.name) * " "
@@ -111,7 +109,7 @@ class CLITool(object):
         except KeyboardInterrupt:
             ### handle keyboard interrupt ###
             return 0
-        except Exception, e:
+        except Exception as e:
             if self.debug:
                 raise
             indent = len(self.name) * " "

@@ -74,7 +74,7 @@ class wrykvmconfig(wry.CLITool.CLITool):
             self.dev.kvm.port_5900_enabled = self.kvmenable
             self.dev.kvm.opt_in_timeout = None
             self.dev.kvm.session_timeout = 20
-        print "Enabled ports:", self.dev.kvm.enabled_ports
+        print("Enabled ports: %s" % (list(self.dev.kvm.enabled_ports), ))
         return 0
 
 

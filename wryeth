@@ -54,8 +54,8 @@ class wrynetboot(wry.CLITool.CLITool):
         pass
 
     def extra_run(self):
-        state = self.dev.eth.mac
-        print("State:", state)
+        mac = self.dev.eth.mac
+        print("MAC:", mac)
         return 0
 
 

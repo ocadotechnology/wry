@@ -173,7 +173,6 @@ class wsmanResource(object):
             'body': self.resource_methods['enumerate'] % kwargs
         }
         enum_response = self.request(doc = wsmanData.WS_ENUM_ENVELOPE, params = params)
-        print(enum_response)
         params['enumctx'] = enum_response['EnumerateResponse']['EnumerationContext']
         params['actionUri'] = wsmanData.ACTIONS_URIS['pull']
         output = WryDict.WryDict({self.resourceId:[]})

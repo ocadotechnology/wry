@@ -60,7 +60,7 @@ class AMTPower(wsmanModule.wsmanModule):
         A :class:`wry.device.StateMap` as described in
         :data:`wry.device.AMT_POWER_STATE_MAP`.
         '''
-        response = self.RESOURCES['aux'].get(setting = 'PowerState')
+        response = int(self.RESOURCES['aux'].get(setting = 'PowerState'))
         return AMT_POWER_STATE_MAP[response][0]
 
     def turn_on(self):

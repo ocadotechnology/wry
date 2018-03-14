@@ -35,7 +35,7 @@ import wry.CLITool
 __all__ = []
 __version__ = wry.version.__VERSION__
 __date__ = '2017-07-04'
-__updated__ = '2018-03-12'
+__updated__ = '2018-03-14'
 
 
 class wrynetboot(wry.CLITool.CLITool):
@@ -52,8 +52,8 @@ class wrynetboot(wry.CLITool.CLITool):
         self.state = args.state
 
     def extra_run(self):
-        print("Current power state:", self.dev.power.state)
-        print("Available states:", self.dev.power.available_states())
+        print("Current power state: %s" % self.dev.power.state)
+        print("Available states:%s" % self.dev.power.available_states())
         if self.state != None:
             try:
                 self.dev.power.request_power_state_change(int(self.state))

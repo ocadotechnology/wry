@@ -43,7 +43,7 @@ class WryDict(OrderedDict):
             '''
             # TODO: add an ns_uri kwarg so we can specify a namespace if one is not here...
             output = self.__class__()
-            for key, value in input_dict.iteritems():
+            for key, value in input_dict.items():
                 try:
                     value = _convert_values(value)
                 except AttributeError:
@@ -61,7 +61,7 @@ class WryDict(OrderedDict):
             Add an XML namespace attribute(s) to the dictionary value(s).
             '''
             output = self.__class__()
-            for resource_name, resource in self.iteritems():
+            for resource_name, resource in self.items():
                 uri = wsmanData.RESOURCE_URIS.get(resource_name, None)
                 output[resource_name] = resource.copy()
                 output[resource_name][u'@xmlns'] = uri

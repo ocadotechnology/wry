@@ -50,7 +50,7 @@ class wsmanResource(object):
 
     def etree_to_dict(self, t):
         d = {t.tag : map(self.etree_to_dict, t.iterchildren())}
-        d.update(('@' + k, v) for k, v in t.attrib.iteritems())
+        d.update(('@' + k, v) for k, v in t.attrib.items())
         d['text'] = t.text
         return d
 
@@ -87,7 +87,6 @@ class wsmanResource(object):
                 resp.raise_for_status()
                 return WryDict.WryDict.from_xml(resp.content)
             except:
-                raise
                 if self.debug:
                     print("Failed, retrying")
                 sleep(wsmanData.CONNECT_DELAY)
@@ -121,7 +120,7 @@ class wsmanResource(object):
         @param **kwargs: zero or more settings to put back to the wsman server
         '''
         current = self.get()
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             current[self.resourceId][k] = v
         params = {
             'uri': self.target,

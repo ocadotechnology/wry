@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from . import TestBase
+import TestBase
 import wry
 
 class Test(TestBase.TestBase):

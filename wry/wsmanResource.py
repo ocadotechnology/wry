@@ -111,8 +111,6 @@ class wsmanResource(object):
         }
         response = self.request(doc = wsmanData.WS_ENVELOPE, params = params)
         if len(setting) > 0:
-            print(response)
-            print(response[self.resourceId])
             response = response[self.resourceId][setting]
         return response
 

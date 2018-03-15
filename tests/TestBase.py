@@ -67,10 +67,8 @@ class TestBase(unittest.TestCase):
         if self.PRINT_DATA:
             print(len(data))
         data = self.UUID.sub("uuid:", data)
-        if self.PRINT_DATA:
-            print(len(data))
-            print(len(req))
-            print(data, "\n=========\n", req , "\n==========\n", len(data), len(req))
+        if self.PRINT_DATA or (data != req):
+            print(len(data), "\n", data, "\n=========\n", len(req), "\n", req , "\n==========\n", data==req, "\n")
         self.assertEqual(data, req, "Request does not match")
         resp = self.respondXML.pop(0)
         return RESPONSE(resp)

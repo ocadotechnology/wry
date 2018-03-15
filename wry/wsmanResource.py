@@ -87,6 +87,7 @@ class wsmanResource(object):
                 resp.raise_for_status()
                 return WryDict.WryDict.from_xml(resp.content)
             except:
+                raise
                 if self.debug:
                     print("Failed, retrying")
                 sleep(wsmanData.CONNECT_DELAY)
@@ -110,6 +111,8 @@ class wsmanResource(object):
         }
         response = self.request(doc = wsmanData.WS_ENVELOPE, params = params)
         if len(setting) > 0:
+            print(response)
+            print(response[self.resourceId])
             response = response[self.resourceId][setting]
         return response
 

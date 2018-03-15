@@ -75,12 +75,16 @@ class AMTPower(wsmanModule.wsmanModule):
         '''Reboot the device.'''
         return self.request_power_state_change(5)
 
+
     def available_states(self):
         '''Get a list of available power states given our current power state'''
-        response = self.RESOURCES['aux'].get(setting = 'AvailableRequestedPowerStates')
-        if type(response) != type([]):
-            response = [response]
-        return response
+        try:
+            response = self.RESOURCES['aux'].get(setting = 'AvailableRequestedPowerStates')
+            if type(response) != type([]):
+                response = [response]
+            return response
+        except:
+            return []
 
     def toggle(self):
         """

@@ -20,6 +20,6 @@ if __name__ == '__main__':
     suite = unittest.TestLoader().discover(
         start_dir = os.path.dirname(os.path.abspath(__file__)),
         pattern = "test_*.py",
-        top_level_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        top_level_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
     )
     unittest.TextTestRunner().run(suite)

@@ -112,11 +112,10 @@ class AMTDevice(wsmanModule.wsmanModule):
                     resource = res.get()
                 else:
                     raise NotImplementedError('The resource %r does not define a supported method for this action.' % name)
+                output.update(resource)
             except:
                 raise
                 impossible.append(name)
-            else:
-                output.update(resource)
         messages = ['# Could not dump %s' % name for name in impossible]
         if as_json:
             return '\n'.join(messages) + '\n' + output.as_json()

@@ -83,7 +83,7 @@ class CLITool(object):
             self.host = args.host
             self.name = args.name
             self.password = args.password
-            self.dev = wry.AMTDevice(
+            self.dev = wry.AMTDevice.AMTDevice(
                 target = self.host,
                 is_ssl = args.ssl,
                 username = self.name,

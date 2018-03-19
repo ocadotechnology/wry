@@ -18,7 +18,7 @@ import wry
 class Test(TestBase.TestBase):
     def setUp(self):
         TestBase.TestBase.setUp(self)
-        self.power = wry.AMTPower(self.DEVICE)
+        self.power = wry.AMTPower.AMTPower(self.DEVICE)
 
 
     def tearDown(self):

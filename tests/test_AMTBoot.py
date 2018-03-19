@@ -18,7 +18,7 @@ import wry
 class Test(TestBase.TestBase):
     def setUp(self):
         TestBase.TestBase.setUp(self)
-        self.boot = wry.AMTBoot(self.DEVICE)
+        self.boot = wry.AMTBoot.AMTBoot(self.DEVICE)
 
     def tearDown(self):
         TestBase.TestBase.tearDown(self)

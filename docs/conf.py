@@ -63,7 +63,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Wry'
-copyright = u'2015, Ocado Technology'
+copyright = u'2015-2018, Ocado Technology Ltd'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -288,9 +288,9 @@ texinfo_documents = [
 
 # Bibliographic Dublin Core info.
 epub_title = u'Wry'
-epub_author = u'Ocado Technology'
-epub_publisher = u'Ocado Technology'
-epub_copyright = u'2015, Ocado Technology'
+epub_author = u'Ocado Technology Ltd'
+epub_publisher = u'Ocado Technology Ltd'
+epub_copyright = u'2015-2018, Ocado Technology Ltd'
 
 # The basename for the epub file. It defaults to the project name.
 #epub_basename = u'Wry'

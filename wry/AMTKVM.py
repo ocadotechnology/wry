@@ -39,7 +39,7 @@ class AMTKVM(wsmanModule.wsmanModule):
            are.
         '''
         e_state = self.RESOURCES['kvmRedirectionSap'].get('EnabledState')
-        return AMT_KVM_ENABLEMENT_MAP[e_state][0]
+        return AMT_KVM_ENABLEMENT_MAP[int(e_state)][0]
 
     @enabled.setter
     def enabled(self, value):

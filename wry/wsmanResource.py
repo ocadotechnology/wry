@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -12,10 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import wsmanData
+from . import wsmanData
 import uuid
 import requests
-import WryDict
+from . import WryDict
 from time import sleep
 
 
@@ -52,7 +50,7 @@ class wsmanResource(object):
 
     def etree_to_dict(self, t):
         d = {t.tag : map(self.etree_to_dict, t.iterchildren())}
-        d.update(('@' + k, v) for k, v in t.attrib.iteritems())
+        d.update(('@' + k, v) for k, v in t.attrib.items())
         d['text'] = t.text
         return d
 
@@ -67,13 +65,13 @@ class wsmanResource(object):
         else:
             doc = doc % params
         if self.showxml:
-            print "===== Request ====="
-            print doc
-            print "==================="
+            print("===== Request =====")
+            print(doc)
+            print("===================")
         for _ in range(wsmanData.CONNECT_RETRIES + 1):
             try:
                 if self.debug:
-                    print "Connecting to %s" % (self.target,)
+                    print("Connecting to %s" % (self.target,))
                 resp = requests.post(
                     self.target,
                     timeout = (0.1, 5),
@@ -83,9 +81,9 @@ class wsmanResource(object):
                     allow_redirects = False,
                 )
                 if self.showxml:
-                    print "===== Response ====="
-                    print resp.content
-                    print "===================="
+                    print("===== Response =====")
+                    print(resp.content)
+                    print("====================")
                 resp.raise_for_status()
                 return WryDict.WryDict.from_xml(resp.content)
             except:
@@ -100,7 +98,7 @@ class wsmanResource(object):
         @param setting: the setting to get the value of (None for all in this resources)
         '''
         extraHeader = ''
-        if kwargs.has_key('headerSelector') and kwargs.has_key('headerSelectorType'):
+        if 'headerSelector' in kwargs and 'headerSelectorType' in kwargs:
             extraHeader = '<wsman:SelectorSet><wsman:Selector Name="%(headerSelectorType)s">%(headerSelector)s</wsman:Selector></wsman:SelectorSet>' % kwargs
         params = {
             'uri': self.target,
@@ -122,7 +120,7 @@ class wsmanResource(object):
         @param **kwargs: zero or more settings to put back to the wsman server
         '''
         current = self.get()
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             current[self.resourceId][k] = v
         params = {
             'uri': self.target,
@@ -180,7 +178,7 @@ class wsmanResource(object):
         output = WryDict.WryDict({self.resourceId:[]})
         while params['enumctx']:
             data = self.request(doc = wsmanData.WS_PULL_ENVELOPE, params = params)
-            if not data['PullResponse'].has_key('EnumerationContext'):
+            if 'EnumerationContext' not in data['PullResponse']:
                 params['enumctx'] = None
             output[self.resourceId].append(data['PullResponse']['Items'][self.resourceId])
         return output
@@ -191,10 +189,10 @@ class wsmanResource(object):
 
         @param method: the method name to call
         '''
-        if not self.resource_methods.has_key(method):
+        if method not in self.resource_methods:
             raise Exception("Method '%s' not defined" % method)
         extraHeader = ''
-        if kwargs.has_key('headerSelectior') and kwargs.has_key('headerSelectorType'):
+        if 'headerSelector' in kwargs and 'headerSelectorType' in kwargs:
             extraHeader = '<wsman:SelectorSet><wsman:Selector Name="%(headerSelectorType)s">%(headerSelector)s</wsman:Selector></wsman:SelectorSet>' % kwargs
         params = {
             'uri': self.target,

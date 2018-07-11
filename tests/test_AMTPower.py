@@ -18,7 +18,7 @@ import wry
 class Test(TestBase.TestBase):
     def setUp(self):
         TestBase.TestBase.setUp(self)
-        self.power = wry.AMTPower(self.DEVICE)
+        self.power = wry.AMTPower.AMTPower(self.DEVICE)
 
 
     def tearDown(self):
@@ -26,6 +26,7 @@ class Test(TestBase.TestBase):
 
     def testGetPowerState(self):
         "Get the current power state"
+        print("Get Power State")
         self.expectXML = [
             """<?xml version="1.0" encoding="UTF-8"?>
 <s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"
@@ -55,6 +56,7 @@ class Test(TestBase.TestBase):
 
     def testGetAvailableStates(self):
         "Get a list of available power states"
+        print("Get Available States")
         self.expectXML = [
             """<?xml version="1.0" encoding="UTF-8"?>
 <s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"
@@ -99,7 +101,7 @@ class Test(TestBase.TestBase):
         <wsa:ReplyTo>
             <wsa:Address>http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous</wsa:Address>
         </wsa:ReplyTo>
-
+<wsman:SelectorSet><wsman:Selector Name="Name">Intel(r) AMT Power Management Service</wsman:Selector></wsman:SelectorSet>
     </s:Header>
     <s:Body>
 
@@ -141,7 +143,7 @@ class Test(TestBase.TestBase):
         <wsa:ReplyTo>
             <wsa:Address>http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous</wsa:Address>
         </wsa:ReplyTo>
-
+<wsman:SelectorSet><wsman:Selector Name="Name">Intel(r) AMT Power Management Service</wsman:Selector></wsman:SelectorSet>
     </s:Header>
     <s:Body>
 
@@ -183,7 +185,7 @@ class Test(TestBase.TestBase):
         <wsa:ReplyTo>
             <wsa:Address>http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous</wsa:Address>
         </wsa:ReplyTo>
-
+<wsman:SelectorSet><wsman:Selector Name="Name">Intel(r) AMT Power Management Service</wsman:Selector></wsman:SelectorSet>
     </s:Header>
     <s:Body>
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -12,29 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import version
-import AMTDevice
-import AMTBoot
-import AMTPower
-import AMTKVM
-import AMTOptIn
-import AMTRedirection
-
-AMTDevice = AMTDevice.AMTDevice
-AMTBoot = AMTBoot.AMTBoot
-AMTPower = AMTPower.AMTPower
-AMTKVM = AMTKVM.AMTKVM
-AMTOptin = AMTOptIn.AMTOptIn
-AMTRedirection = AMTRedirection.AMTRedirection
-
-# For backwards compatibility
-device = {
-    'AMTDevice': AMTDevice,
-    'AMTBoot': AMTBoot,
-    'AMTPower': AMTPower,
-    'AMTKVM': AMTKVM,
-    'AMTOptIn': AMTOptIn,
-    'AMTRedirection': AMTRedirection,
-}
+from . import version
+from . import AMTDevice
+from . import AMTBoot
+from . import AMTPower
+from . import AMTKVM
+from . import AMTOptIn
+from . import AMTRedirection
 
 __all__ = [AMTDevice, AMTBoot, AMTPower, AMTKVM, AMTOptIn, AMTRedirection]

@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -12,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import wsmanModule
+from . import wsmanModule
 
 AMT_POWER_STATE_MAP = {
     0:  (None, None),
@@ -62,7 +60,7 @@ class AMTPower(wsmanModule.wsmanModule):
         A :class:`wry.device.StateMap` as described in
         :data:`wry.device.AMT_POWER_STATE_MAP`.
         '''
-        response = self.RESOURCES['aux'].get(setting = 'PowerState')
+        response = int(self.RESOURCES['aux'].get(setting = 'PowerState'))
         return AMT_POWER_STATE_MAP[response][0]
 
     def turn_on(self):
@@ -77,12 +75,16 @@ class AMTPower(wsmanModule.wsmanModule):
         '''Reboot the device.'''
         return self.request_power_state_change(5)
 
+
     def available_states(self):
         '''Get a list of available power states given our current power state'''
-        response = self.RESOURCES['aux'].get(setting = 'AvailableRequestedPowerStates')
-        if type(response) != type([]):
-            response = [response]
-        return response
+        try:
+            response = self.RESOURCES['aux'].get(setting = 'AvailableRequestedPowerStates')
+            if type(response) != type([]):
+                response = [response]
+            return response
+        except:
+            return []
 
     def toggle(self):
         """

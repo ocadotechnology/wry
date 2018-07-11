@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -12,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import wsmanResource
+from . import wsmanResource
 
 class wsmanModule(object):
     '''
@@ -27,6 +25,7 @@ class wsmanModule(object):
         '''
         self.RESOURCES = {}
         self._debug = device.debug
+        self._showxml = device.showxml
         for k in self._RESOURCES.keys():
             self.RESOURCES[k] = wsmanResource.wsmanResource(
                 target = device.target,
@@ -55,3 +54,5 @@ class wsmanModule(object):
     @showxml.setter
     def showxml(self, showxml):
         self._showxml = showxml
+        for k in self.RESOURCES.keys():
+            self.RESOURCES[k].showxml = showxml

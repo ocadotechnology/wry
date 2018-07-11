@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 import json
 
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -35,7 +35,7 @@ import wry.CLITool
 __all__ = []
 __version__ = wry.version.__VERSION__
 __date__ = '2017-08-23'
-__updated__ = '2017-08-23'
+__updated__ = '2018-03-12'
 
 
 class wrynetboot(wry.CLITool.CLITool):
@@ -47,15 +47,15 @@ class wrynetboot(wry.CLITool.CLITool):
 
     def extra_init(self):
         #self.parser.add_argument("-S", "--state", dest = "state", help = "set a new power state", default = None)
-	pass
+        pass
 
     def extra_parse(self, args):
         #self.state = args.state
-	pass
+        pass
 
     def extra_run(self):
-	state = self.dev.eth.mac
-        print "State:", state
+        mac = self.dev.eth.mac
+        print("MAC:", mac)
         return 0
 
 

@@ -14,7 +14,7 @@ Status
 ++++++
 Wry is in the early stages of development, and the interfaces it exposes may change as a result. Issues and pull requests are more than welcome.
 
-Wry currently supports only Python 2.7. There are no philosophical reasons for this; it simply matches our target environment. Patches to support other platforms are welcome.
+Wry currently supports Python 2.7 and 3.5, it may well work with other versions.
 
 Compatibility
 +++++++++++++
@@ -28,5 +28,5 @@ Tested on the following hardware/firmware:
 License
 +++++++
 
-Apache. (C) 2015-2017 Ocado Innovation Ltd. Please see the :download:`LICENSE <../LICENSE>` and :download:`NOTICE <../NOTICE>` files.
+Apache. (C) 2015-2018, Ocado Technology Ltd. Please see the :download:`LICENSE <../LICENSE>` and :download:`NOTICE <../NOTICE>` files.
 

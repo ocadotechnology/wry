@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -12,18 +10,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import AMTBoot
-import AMTPower
-import AMTKVM
-import AMTOptIn
-import AMTRedirection
-import AMTEthernet
-import wsmanData
-import WryDict
-import wsmanResource
+from . import AMTBoot
+from . import AMTPower
+from . import AMTKVM
+from . import AMTOptIn
+from . import AMTRedirection
+from . import AMTEthernet
+from . import wsmanData
+from . import WryDict
+from . import wsmanResource
+from . import wsmanModule
 
-class AMTDevice(object):
+class AMTDevice(wsmanModule.wsmanModule):
     '''A wrapper class which packages AMT functionality into an accessible, device-centric format.'''
+    _RESOURCES = {
+        'bios': 'CIM_SystemBIOS',
+    }
 
     def __init__(self, target = None, is_ssl = True, username = None, password = None, debug = False, showxml = False):
         '''
@@ -48,6 +50,7 @@ class AMTDevice(object):
         self.opt_in = AMTOptIn.AMTOptIn(self)
         self.redirection = AMTRedirection.AMTRedirection(self)
         self.eth = AMTEthernet.AMTEthernet(self)
+        wsmanModule.wsmanModule.__init__(self, self)
 
     @property
     def debug(self):
@@ -75,6 +78,14 @@ class AMTDevice(object):
         self.opt_in.showxml = showxml
         self.redirection.showxml = showxml
 
+    @property
+    def bios(self):
+        '''
+        A property which returns the BIOS identifiers (for the code, not settings)
+        '''
+        response = self.RESOURCES['bios'].get()
+        return response
+
     def dump(self, as_json = True):
         '''
         Print all of the known information about the device.
@@ -101,10 +112,10 @@ class AMTDevice(object):
                     resource = res.get()
                 else:
                     raise NotImplementedError('The resource %r does not define a supported method for this action.' % name)
-            except:
-                impossible.append(name)
-            else:
                 output.update(resource)
+            except:
+                raise
+                impossible.append(name)
         messages = ['# Could not dump %s' % name for name in impossible]
         if as_json:
             return '\n'.join(messages) + '\n' + output.as_json()

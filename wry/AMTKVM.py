@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -12,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import wsmanModule
+from . import wsmanModule
 
 AMT_KVM_ENABLEMENT_MAP = {
     2: (True, 'Enabled In Use'),
@@ -41,7 +39,7 @@ class AMTKVM(wsmanModule.wsmanModule):
            are.
         '''
         e_state = self.RESOURCES['kvmRedirectionSap'].get('EnabledState')
-        return AMT_KVM_ENABLEMENT_MAP[e_state][0]
+        return AMT_KVM_ENABLEMENT_MAP[int(e_state)][0]
 
     @enabled.setter
     def enabled(self, value):
@@ -60,7 +58,7 @@ class AMTKVM(wsmanModule.wsmanModule):
     def enabled_ports(self):
         '''Tells you (and/or allows you to set) the enabled ports for VNC.'''
         ports = set()
-        if self.RESOURCES['kvmRedirectionSettingData'].get('Is5900PortEnabled'):
+        if self.RESOURCES['kvmRedirectionSettingData'].get('Is5900PortEnabled').lower() == "true":
             ports.add(5900)
         if self.RESOURCES['redirectionService'].get('ListenerEnabled'):
             ports.add(16994)
@@ -121,7 +119,9 @@ class AMTKVM(wsmanModule.wsmanModule):
         '''
         Session timeout. In minutes.
         '''
-        return self.RESOURCES['kvmRedirectionSettingData'].get('SessionTimeout')
+        retval = self.RESOURCES['kvmRedirectionSettingData'].get('SessionTimeout')
+        print(retval)
+        return retval
 
     @session_timeout.setter
     def session_timeout(self, value):

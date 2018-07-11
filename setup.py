@@ -33,6 +33,13 @@ setup(
         'requests',
         'xmltodict >= 0.7',
     ],
+    scripts = [
+        'wrydump',
+        'wryeth',
+        'wrykvmconfig',
+        'wrynetboot',
+        'wrypower',
+    ],
     classifiers = [
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: System Administrators',

@@ -18,12 +18,10 @@ import wry
 class Test(TestBase.TestBase):
     def setUp(self):
         TestBase.TestBase.setUp(self)
-        self.boot = wry.AMTBoot(self.DEVICE)
-
+        self.boot = wry.AMTBoot.AMTBoot(self.DEVICE)
 
     def tearDown(self):
         TestBase.TestBase.tearDown(self)
-
 
 # This not only tests the supportedMedia method but also the enumerate workflow
     def testSupportedMedia(self):
@@ -242,7 +240,7 @@ class Test(TestBase.TestBase):
         <wsa:ReplyTo>
             <wsa:Address>http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous</wsa:Address>
         </wsa:ReplyTo>
-
+<wsman:SelectorSet><wsman:Selector Name="InstanceID">Intel(r) AMT: Boot Configuration 0</wsman:Selector></wsman:SelectorSet>
     </s:Header>
     <s:Body>
 
@@ -274,7 +272,7 @@ class Test(TestBase.TestBase):
         <wsa:ReplyTo>
             <wsa:Address>http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous</wsa:Address>
         </wsa:ReplyTo>
-
+<wsman:SelectorSet><wsman:Selector Name="Name">Intel(r) AMT Boot Service</wsman:Selector></wsman:SelectorSet>
     </s:Header>
     <s:Body>
 

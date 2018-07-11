@@ -96,7 +96,7 @@ class WryDict(OrderedDict):
         outdict = cls()
         for key, value in list(body.values())[0].items():
             if value in (u'true', u'false'):
-                value = value.capitalize()
+                value = value.lower()
             outdict[key] = value
         self = cls({list(body.keys())[0]: outdict})
         self._from_xml = True

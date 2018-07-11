@@ -58,7 +58,7 @@ class AMTKVM(wsmanModule.wsmanModule):
     def enabled_ports(self):
         '''Tells you (and/or allows you to set) the enabled ports for VNC.'''
         ports = set()
-        if self.RESOURCES['kvmRedirectionSettingData'].get('Is5900PortEnabled'):
+        if self.RESOURCES['kvmRedirectionSettingData'].get('Is5900PortEnabled').lower() == "true":
             ports.add(5900)
         if self.RESOURCES['redirectionService'].get('ListenerEnabled'):
             ports.add(16994)
@@ -119,7 +119,9 @@ class AMTKVM(wsmanModule.wsmanModule):
         '''
         Session timeout. In minutes.
         '''
-        return self.RESOURCES['kvmRedirectionSettingData'].get('SessionTimeout')
+        retval = self.RESOURCES['kvmRedirectionSettingData'].get('SessionTimeout')
+        print(retval)
+        return retval
 
     @session_timeout.setter
     def session_timeout(self, value):
